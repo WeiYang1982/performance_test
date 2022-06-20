@@ -23,15 +23,17 @@ class BaseWebDriver:
         d['loggingPrefs'] = {'performance': 'ALL'}
         registry_url = "https://registry.npmmirror.com/-/binary/chromedriver"
         if executable_path is None and version is None:
-            executable_path = ChromeDriverManager(url=registry_url, latest_release_url=registry_url + "/LATEST_RELEASE").install()
+            executable_path = ChromeDriverManager(url=registry_url,
+                                                  latest_release_url=registry_url + "/LATEST_RELEASE").install()
         elif version is not None:
-            executable_path = ChromeDriverManager(url=registry_url, latest_release_url=registry_url + "/LATEST_RELEASE", version=version).install()
+            executable_path = ChromeDriverManager(url=registry_url, latest_release_url=registry_url + "/LATEST_RELEASE",
+                                                  version=version).install()
         if options is None:
             options = webdriver.ChromeOptions()
             options.add_argument("--start-maximized")  # 最大化启动
             options.add_argument("disable-cache")  # 禁用缓存
             options.add_argument('--no-sandbox')  # 沙盒模式运行
-            options.add_argument("–incognito")   # 无痕
+            options.add_argument("–incognito")  # 无痕
             # options.add_argument("disable-gpu")  # 禁用GPU加速
             # options.add_argument("–disable-extensions")  # 禁用扩展
             # options.add_argument("–no-first-run")  # 初始化时为空白页面
@@ -56,8 +58,8 @@ class BaseWebDriver:
             # options.add_experimental_option("debuggerAddress", "172.25.128.26:9222")
             # options.add_argument('auto-open-devtools-for-tabs')
             # self.driver = webdriver.Chrome(executable_path=executable_path, options=options)
-            self.driver = webdriver.Remote(command_executor="http://172.0.20.74:4444/wd/hub", options=options)
-            # self.driver = webdriver.Remote(command_executor="http://chrome:4444/wd/hub", options=options)
+            self.driver = webdriver.Remote(command_executor="http://172.0.20.74:4444/wd/hub", options=options, desired_capabilities={'browserName': 'chrome'})
+            # self.driver = webdriver.Remote(command_executor="http://chrome:4444/wd/hub", options=options,desired_capabilities={'browserName': 'chrome'})
         # self.driver.execute_cdp_cmd("Network.setCacheDisabled", {"cacheDisabled": True})
         # self.driver.execute_cdp_cmd("Performance.enable", {})
         self.driver = EventFiringWebDriver(self.driver, EventListener())
