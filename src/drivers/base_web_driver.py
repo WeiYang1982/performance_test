@@ -46,8 +46,8 @@ class BaseWebDriver:
             options.add_argument("--disable-gpu-shader-disk-cache")
             # options.set_capability("goog:loggingPrefs", logPrefs)
             # options.add_experimental_option('w3c', False)
-        # if os.environ['headless'] == 'True':
-        #     options.add_argument('headless')
+        if os.environ['headless'] == 'True':
+            options.add_argument('headless')
         driver_type = os.environ['driver_type']
         if driver_type == 'local':
             self.driver = webdriver.Chrome(desired_capabilities=d, executable_path=executable_path, options=options)
