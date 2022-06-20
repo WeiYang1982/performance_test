@@ -58,7 +58,7 @@ class BaseWebDriver:
             # options.add_experimental_option("debuggerAddress", "172.25.128.26:9222")
             # options.add_argument('auto-open-devtools-for-tabs')
             # self.driver = webdriver.Chrome(executable_path=executable_path, options=options)
-            self.driver = webdriver.Remote(command_executor="http://172.0.20.74:4444/wd/hub", options=options, desired_capabilities={'browserName': 'chrome'})
+            self.driver = webdriver.Remote(command_executor="http://172.20.0.74:4444/wd/hub", options=options, desired_capabilities={'browserName': 'chrome'})
             # self.driver = webdriver.Remote(command_executor="http://chrome:4444/wd/hub", options=options,desired_capabilities={'browserName': 'chrome'})
         # self.driver.execute_cdp_cmd("Network.setCacheDisabled", {"cacheDisabled": True})
         # self.driver.execute_cdp_cmd("Performance.enable", {})
