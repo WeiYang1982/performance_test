@@ -134,6 +134,8 @@ def pytest_runtest_makereport(item):
     global web_driver
     global result
     file_name = None
+    report.description = str(item.function.__doc__)
+    print("report description" + report.description)
     if report.when == 'call':
         xfail = hasattr(report, 'wasxfail')
         # 判断用例是否失败或者xfail跳过的测试
@@ -146,8 +148,6 @@ def pytest_runtest_makereport(item):
             file_name = '结束截图'
         ScreenShot.take_screenshot(web_driver, file_name)
         report.extra = extra
-    report.description = str(item.function.__doc__)
-    print("report description" + report.description)
     # report.nodeid = report.nodeid.encode("utf-8").decode("unicode_escape")
     # report.nodeid = report.nodeid
     # def pytest_sessionstart(session):
