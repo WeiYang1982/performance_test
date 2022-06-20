@@ -26,7 +26,7 @@ services:
 #      dockerfile: Dockerfile
     container_name: pytest
     volumes:
-      - ./report:/opt/test_ui/report/
+      - ./report:/opt/page_load_test/report/
     #    tty: true
     depends_on:
       chrome:
