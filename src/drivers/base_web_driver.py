@@ -32,18 +32,18 @@ class BaseWebDriver:
             options.add_argument("disable-cache")  # 禁用缓存
             options.add_argument('--no-sandbox')  # 沙盒模式运行
             options.add_argument("–incognito")   # 无痕
-            options.add_argument("disable-gpu")  # 禁用GPU加速
-            options.add_argument("–disable-extensions")  # 禁用扩展
-            options.add_argument("–no-first-run")  # 初始化时为空白页面
-            options.add_argument('–disable-webgl')  # 禁用webgl
-            options.add_argument('auto-open-devtools-for-tabs')  # 自动打开devtools
-            options.add_argument('--disable-application-cache')
+            # options.add_argument("disable-gpu")  # 禁用GPU加速
+            # options.add_argument("–disable-extensions")  # 禁用扩展
+            # options.add_argument("–no-first-run")  # 初始化时为空白页面
+            # options.add_argument('–disable-webgl')  # 禁用webgl
+            # options.add_argument('auto-open-devtools-for-tabs')  # 自动打开devtools
+            # options.add_argument('--disable-application-cache')
             options.add_argument("--disk-cache-size=0")
             options.add_argument("--disk-cache-dir=/dev/null")
-            options.add_argument("--arc-disable-gms-core-cache")
-            options.add_argument("--disable-back-forward-cache")
-            options.add_argument("--disable-gpu-program-cache")
-            options.add_argument("--disable-gpu-shader-disk-cache")
+            # options.add_argument("--arc-disable-gms-core-cache")
+            # options.add_argument("--disable-back-forward-cache")
+            # options.add_argument("--disable-gpu-program-cache")
+            # options.add_argument("--disable-gpu-shader-disk-cache")
             # options.set_capability("goog:loggingPrefs", logPrefs)
             # options.add_experimental_option('w3c', False)
         if os.environ['headless'] == 'True':
@@ -54,7 +54,7 @@ class BaseWebDriver:
         if driver_type == 'remote':
             # options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
             # options.add_experimental_option("debuggerAddress", "172.25.128.26:9222")
-            options.add_argument('auto-open-devtools-for-tabs')
+            # options.add_argument('auto-open-devtools-for-tabs')
             # self.driver = webdriver.Chrome(executable_path=executable_path, options=options)
             # self.driver = webdriver.Remote(command_executor="http://172.0.20.74:4444/wd/hub", options=options)
             self.driver = webdriver.Remote(command_executor="http://chrome:4444/wd/hub", options=options)

@@ -41,7 +41,7 @@ def driver():
     :return:
     """
     global web_driver
-    web_driver = BaseWebDriver().get_driver()
+    web_driver = BaseWebDriver(version='94.0.4606.61').get_driver()
     yield web_driver
     web_driver.quit()
 
