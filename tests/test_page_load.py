@@ -36,6 +36,11 @@ test_data = [
 ]
 
 
+@allure.feature("性能测试")
+@allure.story("前端性能")
+@allure.title("前端页面加载速度")
+@pytest.mark.performance
+@pytest.mark.all
 @pytest.mark.parametrize("name, url, expected", test_data)
 @pytest.mark.usefixtures("driver")
 @pytest.mark.usefixtures("login")
