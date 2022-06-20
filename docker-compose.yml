@@ -24,7 +24,7 @@ services:
 #    build:
 #      context: ./
 #      dockerfile: Dockerfile
-    container_name: pytest
+    container_name: page_load_test
     volumes:
       - ./report:/opt/page_load_test/report/
     #    tty: true
