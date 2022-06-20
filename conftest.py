@@ -147,6 +147,7 @@ def pytest_runtest_makereport(item):
         ScreenShot.take_screenshot(web_driver, file_name)
         report.extra = extra
     report.description = str(item.function.__doc__)
+    print("report description" + report.description)
     # report.nodeid = report.nodeid.encode("utf-8").decode("unicode_escape")
     # report.nodeid = report.nodeid
     # def pytest_sessionstart(session):
@@ -170,7 +171,7 @@ def pytest_html_results_summary(prefix, summary, postfix):
 
 @pytest.mark.optionalhook
 def pytest_html_results_table_header(cells):
-    cells.insert(1, html.th("Description"))  # 表头添加Description
+    cells.insert(1, html.th("Description"))
     cells.insert(2, html.th('Test'))
     cells.insert(3, html.th("Time", class_="sortable time", col="time"))
     cells.pop(-3)
@@ -178,7 +179,7 @@ def pytest_html_results_table_header(cells):
 
 @pytest.mark.optionalhook
 def pytest_html_results_table_row(report, cells):
-    cells.insert(1, html.td(report.description))  # 表头对应的内容
+    cells.insert(1, html.td(report.description))
     cells.insert(2, html.td(report.nodeid))
     cells.insert(3, html.td(datetime.now(), class_="col-time"))
     cells.pop(-3)
