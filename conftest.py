@@ -172,16 +172,16 @@ def pytest_html_results_summary(prefix, summary, postfix):
 @pytest.mark.optionalhook
 def pytest_html_results_table_header(cells):
     # cells.insert(1, html.th("Description"))
-    cells.insert(2, html.th('Test'))
-    cells.insert(3, html.th("Time", class_="sortable time", col="time"))
+    cells.insert(1, html.th('Test'))
+    cells.insert(2, html.th("Time", class_="sortable time", col="time"))
     cells.pop(-3)
 
 
 @pytest.mark.optionalhook
 def pytest_html_results_table_row(report, cells):
     # cells.insert(1, html.td(report.description))
-    cells.insert(2, html.td(report.nodeid))
-    cells.insert(3, html.td(datetime.now(), class_="col-time"))
+    cells.insert(1, html.td(report.nodeid))
+    cells.insert(2, html.td(datetime.now(), class_="col-time"))
     cells.pop(-3)
 
 
