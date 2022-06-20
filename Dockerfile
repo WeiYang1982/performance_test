@@ -10,5 +10,5 @@ ENV test_group performance
 RUN chmod a+x /opt/* && \
    pip install -r /opt/page_load_test/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-WORKDIR /opt/test_ui
+WORKDIR /opt/page_load_test
 CMD pytest --driver_type remote  --env ${test_env}  --test_group ${test_group} --headless True
