@@ -31,7 +31,7 @@ test_data = [
     # pytest.param('卓越中心-需求管理', '/market-place/requiremanage', page_load_threshold,  marks=pytest.mark.test),
     # pytest.param('卓越中心-案例管理', '/market-place/backstagemanage/casemanage', page_load_threshold,  marks=pytest.mark.test),
     # pytest.param('卓越中心-应用管理', '/market-place/backstagemanage/appmanage/processmanage', page_load_threshold, marks=pytest.mark.test),
-    # pytest.param('卓越中心-业务标签', '/market-place/backstagemanage/businesstag', page_load_threshold, marks=pytest.mark.test)
+    # pytest.param('卓越中心-业务标签', '/market-place/backstagemanage/businesstag', page_load_threshold, marks=pytest.mark.test),
     # pytest.param('工单', '/webapp/tasklist/agency', page_load_threshold, marks=pytest.mark.test)
 ]
 
@@ -50,6 +50,7 @@ def test_for_page_performance(driver, name, url, expected):
     """
     analytics = PageLoadAnalytics(driver)
     test_result = analytics.test_untitled_test_case(name, os.environ['base_url'] + url)
+    allure.dynamic.title(name)
     # result = pd.json_normalize(test_result, max_level=3)
     # print(result)
     # metrics = driver.execute_cdp_cmd("Performance.getMetrics", {})
