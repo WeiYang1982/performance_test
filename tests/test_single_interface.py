@@ -113,7 +113,7 @@ if __name__ == '__main__':
         jmeterNumber(param[0], param[1], param[2], param[3], param[4])
     else:
         print("参数不对")
-    path = "D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\jmeter\\login_1_2_3_4\\login_1_2_3_4.jtl"
-    with open(path, encoding='gbk') as f:
-        print(f.read())
+    # path = "D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\jmeter\\login_1_2_3_4\\login_1_2_3_4.jtl"
+    # with open(path, encoding='gbk') as f:
+    #     print(f.read())
     pass
