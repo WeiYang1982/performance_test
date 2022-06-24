@@ -20,13 +20,13 @@ services:
 
 
   pytest:
-    image: registry.cyclone-robotics.com/test_project/page_load_test
+    image: registry.cyclone-robotics.com/test_project/performance_test
 #    build:
 #      context: ./
 #      dockerfile: Dockerfile
-    container_name: page_load_test
+    container_name: performance_test
     volumes:
-      - ./report:/opt/page_load_test/report/
+      - ./report:/opt/performance_test/report/
     #    tty: true
     depends_on:
       chrome:

@@ -8,30 +8,27 @@
 import json
 import os
 import time
+import glob
+import jinja2
 from datetime import datetime
 
-import allure
 import pytest
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional
 
-from _pytest.config import Config
+import pytest_html
 from _pytest.fixtures import SubRequest
-from _pytest.reports import CollectReport, TestReport
 from py.xml import html
-from selenium import webdriver
-from selenium.webdriver.support.event_firing_webdriver import EventFiringWebDriver
-from webdriver_manager.chrome import ChromeDriverManager
-
+from pytest_html import extras
 from src.drivers.base_web_driver import BaseWebDriver
-from src.drivers.event_listener import EventListener
 from src.pages.login_page import LoginPage
-from src.utils.capture_screenshot import ScreenShot
-from src.utils.config_manager import get_config
+from src.utils.config_manager import get_config, get_root_path
+from src.utils.file_manager import count_result
+from src.utils.send_email import SendEmail
+from src.utils.match_name import get_modules_name
 
 ALLURE_ENVIRONMENT_PROPERTIES_FILE = "environment.properties"
 ALLUREDIR_OPTION = "--alluredir"
-
-global web_driver
+case_result = []
 
 
 @pytest.fixture
@@ -119,7 +116,6 @@ def cenpprop(add_allure_environment_property: Callable, request, set_env) -> Non
     :return:
     """
     add_allure_environment_property("mark", request.config.getoption("-m"))
-    add_allure_environment_property("base_url", os.environ['base_url'])
     add_allure_environment_property("env", os.environ['env'])
 
 
@@ -133,57 +129,142 @@ def pytest_runtest_makereport(item):
     extra = getattr(report, 'extra', [])
     global web_driver
     global result
-    file_name = None
+    case_dic = {}
     # report.description = str(item.function.__doc__)
     # print("report description" + report.description)
     if report.when == 'call':
         xfail = hasattr(report, 'wasxfail')
-        # 判断用例是否失败或者xfail跳过的测试
-        if (report.skipped and xfail) or (report.failed and not xfail):
-            # 获取测试用例代码中webDriver参数来获取浏览器进行抓屏
-            if web_driver:
-                file_name = '失败截图'
-            pass
-        if report.passed:
-            file_name = '结束截图'
-        ScreenShot.take_screenshot(web_driver, file_name)
         report.extra = extra
-    # report.nodeid = report.nodeid.encode("utf-8").decode("unicode_escape")
-    # report.nodeid = report.nodeid
-    # def pytest_sessionstart(session):
-    #     file_path = os.environ['allure_dir'] + "/collect_json"
-    #     if not os.path.exists(file_path):
-    #         os.makedirs(file_path)
+        case_dic["id"] = report.nodeid
+        case_dic["outcome"] = report.outcome
+        case_result.append(case_dic)
 
-    # def pytest_sessionfinish(session, exitstatus):
-    from src.utils.merge_json_files import merge_json_files
-    import pandas as pd
-    # file_path = os.environ['allure_dir'] + "/collect_json"
-    # json_object = merge_json_files(file_path)
-    # data = pd.json_normalize(json_object, max_level=4)
-    # data.to_excel(file_path + "/result.xlsx")
+
+@pytest.mark.optionalhook
+def pytest_html_report_title(report):
+    report.title = "RPA平台-九宫格Daily Build非功能自动化测试报告"
+
+
+# 修改Environment部分信息，配置测试报告环境信息
+def pytest_configure(config):
+    # 添加接口地址与项目名称
+    config._metadata["项目名称"] = "RPA平台-九宫格Daily Build性能测试"
+    config._metadata['测试环境'] = "{{ENV}}"
+    config._metadata['开始时间'] = time.strftime('%Y-%m-%d %H:%M:%S')
+    config._metadata.pop("JAVA_HOME")
+    config._metadata.pop("Packages")
+    config._metadata.pop("Platform")
+    config._metadata.pop("Plugins")
+    config._metadata.pop("Python")
 
 
 @pytest.mark.parametrize
 def pytest_html_results_summary(prefix, summary, postfix):
+    # from pytest_html import extras
     prefix.extend([html.p("owner: wei.yang")])
+    prefix.extend([html.table(
+        "{% for result in result_list %}",
+        "{% if loop.first %}",
+        html.tr(
+            html.th("Module", style="padding: 5px;  border: 1px solid #E6E6E6;"),
+            html.th("Total", style="padding: 5px;  border: 1px solid #E6E6E6;"),
+            html.th("Passed", style="padding: 5px;  border: 1px solid #E6E6E6;"),
+            html.th("Failed", style="padding: 5px;  border: 1px solid #E6E6E6;")
+        ),
+        "{% endif %}",
+        html.tr(
+            html.td("{{result.module}}", style="padding: 5px;  border: 1px solid #E6E6E6;"),
+            html.td("{{result.total}}", style="padding: 5px;  border: 1px solid #E6E6E6;"),
+            html.td("{{result.pass}}", style="padding: 5px;  border: 1px solid #E6E6E6;"),
+            html.td("{{result.fail}}", style="padding: 5px;  border: 1px solid #E6E6E6;")
+        ),
+        "{% endfor %}",
+        name='summary result')])
 
 
 @pytest.mark.optionalhook
 def pytest_html_results_table_header(cells):
-    # cells.insert(1, html.th("Description"))
-    cells.insert(1, html.th('Test'))
-    cells.insert(2, html.th("Time", class_="sortable time", col="time"))
-    cells.pop(-3)
+    cells.pop()
+    cells.pop(-1)
+    cells.pop(-1)
+    cells.insert(1, html.th('Type'))
+    cells.insert(2, html.th('Module'))
+    cells.insert(3, html.th('CaseName'))
+    cells.insert(4, html.th('Duration(ms)', class_="sortable time", col="time"))
+    cells.insert(5, html.th('Expected'))
+    cells.insert(6, html.th("Execution Time", class_="sortable time", col="time"))
 
 
 @pytest.mark.optionalhook
 def pytest_html_results_table_row(report, cells):
-    # cells.insert(1, html.td(report.description))
-    cells.insert(1, html.td(report.nodeid))
-    cells.insert(2, html.td(datetime.now(), class_="col-time"))
-    cells.pop(-3)
+    if not report.skipped:
+        case_info = report.nodeid.split("[")[1].replace("]", "")
+        module_name = report.nodeid.split("-")[0].split("[")[1]
+        if "test_interface_scenes" in report.nodeid:
+            type_name = "后端(业务操作)性能"
+            case_name = report.nodeid.split("-")[1]
+            duration = report.nodeid.split("-")[-2]
+        elif "test_page_load" in report.nodeid:
+            type_name = "前端(页面加载)性能"
+            case_name = report.nodeid.split("-")[1] + "-" + report.nodeid.split("-")[2]
+            json_file = glob.glob("*/collect_json/" + module_name + ".json")[0]
+            with open(json_file, 'r', encoding='utf-8') as f:
+                duration = json.load(f)['页面加载时间']['avg']
+        else:
+            type_name = "后端(单接口)性能"
+            case_name = "--"
+        expected = "<" + str(int(report.nodeid.split("-")[-1].replace("]", "")) / 1000) + "s"
+        cells.pop()
+        cells.pop(-1)
+        cells.pop(-1)
+        cells.insert(1, html.td(type_name))
+        cells.insert(2, html.td(get_modules_name(module_name)))
+        cells.insert(3, html.td(case_name))
+        cells.insert(4, html.td(duration, class_="col-time"))
+        cells.insert(5, html.td(expected))
+        cells.insert(6, html.td(datetime.now(), class_="col-time"))
+
+
+# def pytest_sessionstart(session):
+#     session.config._metadata["测试环境"] = os.environ['env']
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_sessionfinish(session):
+    # 在测试用例执行完成后执行
+    summary_result = count_result(case_result)
+    mail_info = {
+        "host": get_config().get('mail', 'server_host'),
+        "from_user": get_config().get('mail', 'from_user'),
+        "from_pwd": get_config().get('mail', 'from_pwd'),
+        "to_user": get_config().get('mail', 'to_user'),
+        "cc_user": get_config().get('mail', 'cc_user'),
+        "attachment_path": "",
+        "attachment": "",
+    }
+    mail = SendEmail(mail_info)
+    print(get_root_path())
+    report_file = glob.glob('*/performance_test_report.html')[0]
+    print(report_file)
+    f = open(report_file, 'r', encoding='utf-8')
+    html_mail = f.read()
+    f.close()
+    # html_mail = html_mail.replace("@@ENV@@", os.environ['env']).replace("@@SUMMARY@@", str(summary_result))
+    html_mail = jinja2.Template(html_mail).render(result_list=summary_result, ENV=os.environ['env'])
+    with open(report_file, 'w', encoding='utf-8') as f:
+        f.writelines(html_mail)
+        f.close()
+    mail.send_mail("RPA平台-九宫格Daily Build非功能自动化测试报告", html_mail)
 
 
 if __name__ == '__main__':
+    summary_result = [{"module": "aaa", "total": 1, "pass": 2, "fail": 3}]
+
+    with open("D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\performance_test_report.html", 'r',
+              encoding='utf-8') as f:
+        html = jinja2.Template(f.read()).render(summary_result)
+        with open(os.path.join('D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\test.html'), 'w',
+                  encoding='utf-8') as f:
+            f.writelines(html)
+            f.close()
     pass

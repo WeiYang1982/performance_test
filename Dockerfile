@@ -8,7 +8,7 @@ ENV test_group performance
 #ENV ALLURE_PATH /opt/libs/allure-2.13.9/bin/
 
 RUN chmod a+x /opt/* && \
-   pip install -r /opt/page_load_test/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+   pip install -r /opt/performance_test/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /opt/page_load_test
 CMD pytest --driver_type="remote"  --env="${test_env}"  -m "${test_group}" --headless True
