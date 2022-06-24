@@ -15,8 +15,8 @@ from src.modules.jenkins_tools import JenkinsTools
 
 
 job_names = [
-    # 'TestGroup/rpa_platform_interface_auto_test',
-    'Process/Process_AutoTest_UI'
+    'TestGroup/rpa_platform_interface_auto_test',
+    # 'Process/Process_AutoTest_UI'
 ]
 
 interface_threshold = 5000
