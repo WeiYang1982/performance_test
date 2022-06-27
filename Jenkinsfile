@@ -16,7 +16,7 @@ pipeline {
     }
     agent {label 'aliyun-slave'}
     environment {
-        image_name = "page_load_test"
+        image_name = "performance_test"
         docker_registry = "registry.mycyclone.com"
     }
     stages {
@@ -49,7 +49,7 @@ pipeline {
     post {
         always{
             script {
-                sh 'docker rmi registry.mycyclone.com/test_project/page_load_test:latest'
+                sh 'docker rmi registry.mycyclone.com/test_project/performance_test:latest'
             }
         }
     }

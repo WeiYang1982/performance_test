@@ -1,6 +1,6 @@
 FROM python:3.9.10-slim
 MAINTAINER wei.yang
-ADD . /opt/page_load_test
+ADD . /opt/performance_test
 
 ENV TZ "Asia/Shanghai"
 ENV test_env test
