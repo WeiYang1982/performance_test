@@ -10,14 +10,16 @@ import pytest
 from src.utils.parse_jtl_report import SamplesParser
 from src.modules.jmeter_script_executor import JmeterScriptExecutor
 
-scripts_names = [
-    pytest.param('COMMON', 'login'),
-    # 'Process/Process_AutoTest_UI'
-]
+
 num_threads = 1
 exec_time = 10
 interface_threshold = 1000
 
+
+scripts_names = [
+    pytest.param('COMMON', 'login', interface_threshold, marks=pytest.mark.test),
+    # 'Process/Process_AutoTest_UI'
+]
 
 # def get_testcases(scripts):
 #     test_cases = []
