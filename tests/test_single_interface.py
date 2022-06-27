@@ -41,7 +41,7 @@ test_data = [
 @pytest.mark.interface
 @pytest.mark.all
 @pytest.mark.parametrize('module_name, case_name, expected', test_data)
-def test_interface_scenes(module_name, case_name, expected):
+def test_single_interface(module_name, case_name, expected):
     print(module_name)
     executor = JmeterScriptExecutor()
     parser = SamplesParser()
@@ -49,4 +49,4 @@ def test_interface_scenes(module_name, case_name, expected):
     datas = parser.get_samples(result_file)
     cases = parser.analytics_sample(datas)
     for case in cases:
-        assert case['avg'] <= interface_threshold
+        assert int(case['avg']) <= interface_threshold
