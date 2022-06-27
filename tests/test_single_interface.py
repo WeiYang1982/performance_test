@@ -16,9 +16,8 @@ exec_time = 10
 interface_threshold = 1000
 
 
-scripts_names = [
+test_data = [
     pytest.param('COMMON', 'login', interface_threshold, marks=pytest.mark.test),
-    # 'Process/Process_AutoTest_UI'
 ]
 
 # def get_testcases(scripts):
@@ -41,8 +40,9 @@ scripts_names = [
 @allure.story("单接口性能")
 @pytest.mark.interface
 @pytest.mark.all
-@pytest.mark.parametrize('module_name, case_name', scripts_names)
-def test_interface_scenes(module_name, case_name):
+@pytest.mark.parametrize('module_name, case_name, expected', test_data)
+def test_interface_scenes(module_name, case_name, expected):
+    print(module_name)
     executor = JmeterScriptExecutor()
     parser = SamplesParser()
     result_file = executor.jmeter_executor(case_name, num_threads, exec_time)
