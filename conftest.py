@@ -5,27 +5,27 @@
 @file:conftest.py.py
 @time:2021/05/13
 """
+import glob
 import json
 import os
 import time
-import glob
-import jinja2
-import pandas as pd
+import shutil
 from datetime import datetime
-
-import pytest
 from typing import Any, Callable, Optional
 
-import pytest_html
+import jinja2
+import pandas as pd
+import pytest
 from _pytest.fixtures import SubRequest
 from py.xml import html
-from pytest_html import extras
+
 from src.drivers.base_web_driver import BaseWebDriver
 from src.pages.login_page import LoginPage
 from src.utils.config_manager import get_config, get_root_path
 from src.utils.file_manager import count_result
-from src.utils.send_email import SendEmail
+from src.utils.get_file_path import get_file_path, get_dir_path
 from src.utils.match_name import get_modules_name
+from src.utils.send_email import SendEmail
 
 ALLURE_ENVIRONMENT_PROPERTIES_FILE = "environment.properties"
 ALLUREDIR_OPTION = "--alluredir"
@@ -229,18 +229,19 @@ def pytest_html_results_table_row(report, cells):
             cells.insert(6, html.td(datetime.now(), class_="col-time"))
         else:
             type_name = "后端(单接口)性能"
-            tmp_cells = []
-            test_result = pd.read_csv(os.environ['allure_dir'] + os.sep + 'jmeter' + os.sep + 'result.csv').values.tolist()
-            for row in test_result:
-                case_name = row[2]
-                duration = row[3]
-                tmp_cells.insert(1, html.td(type_name))
-                tmp_cells.insert(2, html.td(get_modules_name(module_name)))
-                tmp_cells.insert(3, html.td(case_name))
-                tmp_cells.insert(4, html.td(duration, class_="col-time"))
-                tmp_cells.insert(5, html.td(expected))
-                tmp_cells.insert(6, html.td(datetime.now(), class_="col-time"))
-                cells.append(tmp_cells)
+            test_state = report.outcome
+            cells.pop()
+            cells.append(html.tr(
+                "{% for module in module_list %}",
+                html.tr(
+                    html.td(test_state, class_="col-result"),
+                    html.td(type_name),
+                    html.td("{{module.name}}"),
+                    html.td("{{module.path}}"),
+                    html.td("{{module.avg}}"),
+                    html.td(expected),
+                    html.td(datetime.now(), class_="col-time")),
+                "{% endfor %}"))
 
 
 # def pytest_sessionstart(session):
@@ -267,22 +268,38 @@ def pytest_sessionfinish(session):
     f = open(report_file, 'r', encoding='utf-8')
     html_mail = f.read()
     f.close()
-    # html_mail = html_mail.replace("@@ENV@@", os.environ['env']).replace("@@SUMMARY@@", str(summary_result))
-    html_mail = jinja2.Template(html_mail).render(result_list=summary_result, ENV=os.environ['env'])
+    exist, csv_file = get_file_path("result.csv")
+    module_list = []
+    if exist:
+        case_list = pd.read_csv(csv_file, encoding='utf-8', header=0).values.tolist()
+        for case in case_list:
+            module_list.append({"name": case[0], "path": case[1], "avg": case[2]})
+
+    html_mail = jinja2.Template(html_mail).render(result_list=summary_result, ENV=os.environ['env'],
+                                                  module_list=module_list)
     with open(report_file, 'w', encoding='utf-8') as f:
         f.writelines(html_mail)
         f.close()
     mail.send_mail("RPA平台-九宫格Daily Build非功能自动化测试报告", html_mail)
+    dir_exist, dir_path = get_dir_path('jmeter')
+    if dir_exist:
+        shutil.rmtree(dir_path)
 
 
 if __name__ == '__main__':
     summary_result = [{"module": "aaa", "total": 1, "pass": 2, "fail": 3}]
 
-    with open("D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\performance_test_report.html", 'r',
-              encoding='utf-8') as f:
-        html = jinja2.Template(f.read()).render(summary_result)
-        with open(os.path.join('D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\test.html'), 'w',
-                  encoding='utf-8') as f:
-            f.writelines(html)
-            f.close()
+    # with open("D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\performance_test_report.html", 'r',
+    #           encoding='utf-8') as f:
+    #     html = jinja2.Template(f.read()).render(summary_result)
+    #     with open(os.path.join('D:\\Code\\python_project\\interface_scenes_test\\tests\\report\\test.html'), 'w',
+    #               encoding='utf-8') as f:
+    #         f.writelines(html)
+    #         f.close()
+    # for root, dirs, files in os.walk(get_root_path()):
+    #     if "result.csv" in files:
+    #         print(root)
+    #         print(files)
+    shutil.rmtree('D:\\Code\\python_project\\performance_test\\tests\\report\\jmeter')
+    print(dir)
     pass

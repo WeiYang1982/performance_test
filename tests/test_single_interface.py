@@ -18,7 +18,7 @@ exec_time = 10
 interface_threshold = 1000
 
 test_data = [
-    pytest.param('COMMON', 'login', interface_threshold, marks=pytest.mark.test),
+    pytest.param('中控', 'login', interface_threshold, marks=pytest.mark.test),
 ]
 
 
@@ -36,4 +36,4 @@ def test_single_interface(module_name, case_name, expected):
     datas = parser.get_samples(result_file)
     cases = parser.analytics_sample(datas)
     for case in cases:
-        assert int(case['avg']) <= interface_threshold
+        assert case[2] <= interface_threshold

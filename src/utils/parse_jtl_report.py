@@ -8,6 +8,7 @@
 import os
 
 import pandas as pd
+import urllib.parse
 
 
 class SamplesParser:
@@ -20,7 +21,7 @@ class SamplesParser:
 
     def analytics_sample(self, data_frame):
         # 取path
-        data_frame['URL'] = data_frame['URL'].apply(lambda x: x.split("?")[0] if pd.isnull(x) == False else x)
+        data_frame['URL'] = data_frame['URL'].apply(lambda x: urllib.parse.urlparse(x).path if pd.isnull(x) == False else x)
         data = data_frame.groupby(["label", "URL"], as_index=True).agg(
             {"elapsed": [pd.DataFrame.mean, pd.DataFrame.max, pd.DataFrame.min, len]})
         data['throughput'] = data_frame.groupby('label', as_index=True).apply(
@@ -28,16 +29,17 @@ class SamplesParser:
         success_data = data_frame[data_frame['success'] == True]
         success_group = success_data.groupby('label').agg({'label': len})  #
         data['success_rate'] = success_group['label'] / data['elapsed']['len'] * 100
-        data.columns = ['avg', 'max', 'min', 'len', 'throughput', 'success_rate']
+        data = data.fillna(0)
         data = data.reset_index()
+        data.columns = ['name', 'path', 'avg', 'max', 'min', 'len', 'throughput', 'success_rate']
         # data.T.to_json(os.environ['allure_dir'] + "/jmeter" + os.sep + "result.json", force_ascii=False)
-        data.to_csv("result.csv", encoding='utf-8')
+        data.to_csv("result.csv", encoding='utf-8', index=False, mode='a', header=False)
         return data.values.tolist()
 
 
 if __name__ == '__main__':
     # os.environ['allure_dir'] = 'D:\\Code\\python_project\\performance_test\\tests\\report'
-    # report_file = 'D:\\Code\\python_project\\performance_test\\tests\\report\\login.jtl'
+    # report_file = 'D:\\Code\\python_project\\performance_test\\tests\\report\\jmeter\\login_1_10.jtl'
     # # data = pd.DataFrame()
     # parser = SamplesParser()
     # r = parser.get_samples(report_file)
@@ -48,5 +50,5 @@ if __name__ == '__main__':
     #     print("***")
     file = "D:\\Code\\python_project\\performance_test\\tests\\report\\jmeter\\result.csv"
     da = pd.read_csv(file, encoding='utf-8', header=0)
-    print(da.values.tolist())
+    print(da.values.tolist()[0][1])
     pass
