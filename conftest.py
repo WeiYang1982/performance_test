@@ -152,7 +152,7 @@ def pytest_configure(config):
     config._metadata["项目名称"] = "RPA平台-九宫格Daily Build性能测试"
     config._metadata['测试环境'] = "{{ENV}}"
     config._metadata['开始时间'] = time.strftime('%Y-%m-%d %H:%M:%S')
-    config._metadata.pop("JAVA_HOME")
+    # config._metadata.pop("JAVA_HOME")
     config._metadata.pop("Packages")
     config._metadata.pop("Platform")
     config._metadata.pop("Plugins")
