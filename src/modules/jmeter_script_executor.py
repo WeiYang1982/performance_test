@@ -37,15 +37,12 @@ class JmeterScriptExecutor:
             return False
 
         # 保存测试结果路径
-        resultFile = os.path.join(root_dir, 'report/jmeter', runJmeterFile)
-        print("脚本执行路径: ", resultFile)
-
-        # 判断结果路径是否存在
+        resultFile = os.environ['allure_dir'] + "/jmeter"
         if not os.path.exists(resultFile):
             os.makedirs(resultFile)
 
         lines = open(newdir, encoding="utf-8").readlines()
-        fp = open(os.path.join(root_dir, "report/jmeter", resultFile, runJmeterFile) + '.jmx', 'w')  # 打开你要写得文件
+        fp = open(resultFile + os.sep + runJmeterFile + '.jmx', 'w')  # 打开你要写得文件
         for s in lines:
             fp.write(s)  # 勾选通过时间判断结束
         fp.close()
@@ -77,7 +74,7 @@ class JmeterScriptExecutor:
             # os.system(cmd)
             p1 = sp.Popen(cmd, shell=True, stdout=sp.PIPE)
             print(p1.stdout.read())
-        return resultFile + os.sep + runJmeterFile + '.jtl'
+        return runJmeterFile + '.jtl'
 
     def is_evn(self):
         """

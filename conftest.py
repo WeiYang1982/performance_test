@@ -10,6 +10,7 @@ import os
 import time
 import glob
 import jinja2
+import pandas as pd
 from datetime import datetime
 
 import pytest
@@ -198,31 +199,48 @@ def pytest_html_results_table_header(cells):
 @pytest.mark.optionalhook
 def pytest_html_results_table_row(report, cells):
     if not report.skipped:
+        cells.pop()
+        cells.pop(-1)
+        cells.pop(-1)
         case_info = report.nodeid.split("[")[1].replace("]", "")
         module_name = report.nodeid.split("-")[0].split("[")[1]
+        expected = "<" + str(int(report.nodeid.split("-")[-1].replace("]", "")) / 1000) + "s"
         if "test_interface_scenes" in report.nodeid:
             type_name = "后端(业务操作)性能"
             case_name = report.nodeid.split("-")[1]
             duration = report.nodeid.split("-")[-2]
+            cells.insert(1, html.td(type_name))
+            cells.insert(2, html.td(get_modules_name(module_name)))
+            cells.insert(3, html.td(case_name))
+            cells.insert(4, html.td(duration, class_="col-time"))
+            cells.insert(5, html.td(expected))
+            cells.insert(6, html.td(datetime.now(), class_="col-time"))
         elif "test_page_load" in report.nodeid:
             type_name = "前端(页面加载)性能"
             case_name = report.nodeid.split("-")[1] + "-" + report.nodeid.split("-")[2]
             json_file = glob.glob("*/collect_json/" + module_name + ".json")[0]
             with open(json_file, 'r', encoding='utf-8') as f:
                 duration = json.load(f)['页面加载时间']['avg']
+            cells.insert(1, html.td(type_name))
+            cells.insert(2, html.td(get_modules_name(module_name)))
+            cells.insert(3, html.td(case_name))
+            cells.insert(4, html.td(duration, class_="col-time"))
+            cells.insert(5, html.td(expected))
+            cells.insert(6, html.td(datetime.now(), class_="col-time"))
         else:
             type_name = "后端(单接口)性能"
-            case_name = "--"
-        expected = "<" + str(int(report.nodeid.split("-")[-1].replace("]", "")) / 1000) + "s"
-        cells.pop()
-        cells.pop(-1)
-        cells.pop(-1)
-        cells.insert(1, html.td(type_name))
-        cells.insert(2, html.td(get_modules_name(module_name)))
-        cells.insert(3, html.td(case_name))
-        cells.insert(4, html.td(duration, class_="col-time"))
-        cells.insert(5, html.td(expected))
-        cells.insert(6, html.td(datetime.now(), class_="col-time"))
+            tmp_cells = []
+            test_result = pd.read_csv(os.environ['allure_dir'] + os.sep + 'jmeter' + os.sep + 'result.csv').values.tolist()
+            for row in test_result:
+                case_name = row[2]
+                duration = row[3]
+                tmp_cells.insert(1, html.td(type_name))
+                tmp_cells.insert(2, html.td(get_modules_name(module_name)))
+                tmp_cells.insert(3, html.td(case_name))
+                tmp_cells.insert(4, html.td(duration, class_="col-time"))
+                tmp_cells.insert(5, html.td(expected))
+                tmp_cells.insert(6, html.td(datetime.now(), class_="col-time"))
+                cells.append(tmp_cells)
 
 
 # def pytest_sessionstart(session):

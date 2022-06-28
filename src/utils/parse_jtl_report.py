@@ -5,12 +5,9 @@
 @file:report_parser.py
 @time:2022/06/27
 """
+import os
 
 import pandas as pd
-
-
-def test(data):
-    return data.split("?")[0]
 
 
 class SamplesParser:
@@ -33,18 +30,23 @@ class SamplesParser:
         data['success_rate'] = success_group['label'] / data['elapsed']['len'] * 100
         data.columns = ['avg', 'max', 'min', 'len', 'throughput', 'success_rate']
         data = data.reset_index()
+        # data.T.to_json(os.environ['allure_dir'] + "/jmeter" + os.sep + "result.json", force_ascii=False)
+        data.to_csv("result.csv", encoding='utf-8')
         return data.values.tolist()
 
 
 if __name__ == '__main__':
-    report_file = 'D:\\Code\\python_project\\performance_test\\tests\\report\\login.jtl'
-    # data = pd.DataFrame()
-    parser = SamplesParser()
-    r = parser.get_samples(report_file)
-    data = parser.analytics_sample(r)
-    # samples =
-    for d in data:
-        print(d)
-        print("***")
-
+    # os.environ['allure_dir'] = 'D:\\Code\\python_project\\performance_test\\tests\\report'
+    # report_file = 'D:\\Code\\python_project\\performance_test\\tests\\report\\login.jtl'
+    # # data = pd.DataFrame()
+    # parser = SamplesParser()
+    # r = parser.get_samples(report_file)
+    # data = parser.analytics_sample(r)
+    # # samples =
+    # for d in data:
+    #     print(d)
+    #     print("***")
+    file = "D:\\Code\\python_project\\performance_test\\tests\\report\\jmeter\\result.csv"
+    da = pd.read_csv(file, encoding='utf-8', header=0)
+    print(da.values.tolist())
     pass
