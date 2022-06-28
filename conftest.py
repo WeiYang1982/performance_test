@@ -233,14 +233,14 @@ def pytest_html_results_table_row(report, cells):
             cells.pop()
             cells.append(html.tr(
                 "{% for module in module_list %}",
-                html.tr(
+                # html.tr(
                     html.td(test_state, class_="col-result"),
                     html.td(type_name),
                     html.td("{{module.name}}"),
                     html.td("{{module.path}}"),
                     html.td("{{module.avg}}"),
                     html.td(expected),
-                    html.td(datetime.now(), class_="col-time")),
+                    html.td(datetime.now(), class_="col-time"),
                 "{% endfor %}"))
 
 
