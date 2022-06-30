@@ -33,7 +33,7 @@ class SamplesParser:
         data = data.reset_index()
         data.columns = ['name', 'path', 'avg', 'max', 'min', 'len', 'throughput', 'success_rate']
         # data.T.to_json(os.environ['allure_dir'] + "/jmeter" + os.sep + "result.json", force_ascii=False)
-        data.to_csv("result.csv", encoding='utf-8', index=False, mode='a', header=False)
+        data.to_csv(os.environ['allure_dir'] + "/jmeter/result.csv", encoding='utf-8', index=False, mode='a', header=False)
         return data.values.tolist()
 
 

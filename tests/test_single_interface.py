@@ -6,6 +6,7 @@
 @time:2022/06/23
 """
 import glob
+import os
 
 import allure
 import pytest
@@ -13,12 +14,13 @@ import pytest
 from src.modules.jmeter_script_executor import JmeterScriptExecutor
 from src.utils.parse_jtl_report import SamplesParser
 
-num_threads = 1
-exec_time = 10
+num_threads = 100
+exec_time = 120
 interface_threshold = 1000
 
 test_data = [
     pytest.param('中控', 'login', interface_threshold, marks=pytest.mark.test),
+    pytest.param('数据', 'analytics', interface_threshold, marks=pytest.mark.test),
 ]
 
 
@@ -28,10 +30,11 @@ test_data = [
 @pytest.mark.all
 @pytest.mark.parametrize('module_name, case_name, expected', test_data)
 def test_single_interface(module_name, case_name, expected):
-    print(module_name)
+    curr_dir = os.getcwd()
     executor = JmeterScriptExecutor()
     parser = SamplesParser()
     result_file = executor.jmeter_executor(case_name, num_threads, exec_time)
+    os.chdir(curr_dir)
     result_file = glob.glob(result_file)[0]
     datas = parser.get_samples(result_file)
     cases = parser.analytics_sample(datas)

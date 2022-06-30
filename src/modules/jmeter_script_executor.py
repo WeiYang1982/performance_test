@@ -74,7 +74,7 @@ class JmeterScriptExecutor:
             # os.system(cmd)
             p1 = sp.Popen(cmd, shell=True, stdout=sp.PIPE)
             print(p1.stdout.read())
-        return runJmeterFile + '.jtl'
+        return os.getcwd() + os.sep + runJmeterFile + '.jtl'
 
     def is_evn(self):
         """
