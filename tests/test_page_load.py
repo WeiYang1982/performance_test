@@ -53,7 +53,6 @@ test_data = [
     pytest.param('中控', '/orch/deployment', page_load_threshold, marks=pytest.mark.test),  # 控制中心_安装包管理
     pytest.param('中控', '/orch/devices/servers', page_load_threshold, marks=pytest.mark.test),  # 控制中心_节点管理
     pytest.param('中控', '/orch/robots/labels/index', page_load_threshold, marks=pytest.mark.test),  # 控制中心_标签管理
-    pytest.param('中控', '/orch/robots/labels/index', page_load_threshold, marks=pytest.mark.test),  # 控制中心_标签管理
     pytest.param('中控', '/orch/systemSettings/calendars', page_load_threshold, marks=pytest.mark.test),  # 控制中心_日历管理
     pytest.param('中控', '/orch/dailyReport', page_load_threshold, marks=pytest.mark.test),  # 控制中心_日报管理
     pytest.param('工单', '/webapp/tasklist/agency', page_load_threshold, marks=pytest.mark.test),  # 工单_我的待办
