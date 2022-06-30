@@ -20,7 +20,7 @@ services:
 
 
   pytest:
-    image: registry.cyclone-robotics.com/test_project/performance_test
+    image: registry.mycyclone.com/test_project/performance_test
 #    build:
 #      context: ./
 #      dockerfile: Dockerfile

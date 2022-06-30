@@ -8,8 +8,8 @@
 import glob
 import json
 import os
-import time
 import shutil
+import time
 from datetime import datetime
 from typing import Any, Callable, Optional
 
@@ -233,7 +233,7 @@ def pytest_html_results_table_row(report, cells):
             cells.pop()
             cells.append(html.tr(
                 "{% for module in module_list %}",
-                # html.tr(
+                html.tr(
                     html.td(test_state, class_="col-result"),
                     html.td(type_name),
                     html.td("{{module.name}}"),
@@ -242,6 +242,7 @@ def pytest_html_results_table_row(report, cells):
                     html.td(expected),
                     html.td(datetime.now(), class_="col-time"),
                 "{% endfor %}"))
+            )
 
 
 # def pytest_sessionstart(session):
@@ -271,7 +272,7 @@ def pytest_sessionfinish(session):
     exist, csv_file = get_file_path("result.csv")
     module_list = []
     if exist:
-        case_list = pd.read_csv(csv_file, encoding='utf-8', header=0).values.tolist()
+        case_list = pd.read_csv(csv_file, encoding='utf-8', header=None).values.tolist()
         for case in case_list:
             module_list.append({"name": case[0], "path": case[1], "avg": case[2]})
 
@@ -300,6 +301,7 @@ if __name__ == '__main__':
     #     if "result.csv" in files:
     #         print(root)
     #         print(files)
-    shutil.rmtree('D:\\Code\\python_project\\performance_test\\tests\\report\\jmeter')
-    print(dir)
+    csv_file = 'D:\\Code\\python_project\\performance_test\\tests\\report\\jmeter\\result.csv'
+    l = pd.read_csv(csv_file, encoding='utf-8', header=None).values.tolist()
+    print(l)
     pass

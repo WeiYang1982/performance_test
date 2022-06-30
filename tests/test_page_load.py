@@ -18,16 +18,16 @@ base_expected_element = (By.XPATH, "//ul[@role='menu']")
 page_load_threshold = 2000
 
 test_data = [
-    # pytest.param('数据', '/data-insight/lifeCycle', page_load_threshold, marks=pytest.mark.test),
-    # pytest.param('COE', '/market-place/databoard', page_load_threshold, marks=pytest.mark.test), #个人工作台_数据看板
-    # pytest.param('COE', '/orch/processTask/toDoList', page_load_threshold, marks=pytest.mark.test), # 个人工作台_待办事项
-    # pytest.param('COE', '/orch/processTask/process', page_load_threshold, marks=pytest.mark.test), # 个人工作台_我的流程
-    # pytest.param('COE', '/orch/processTask/execution', page_load_threshold, marks=pytest.mark.test), # 个人工作台_运行记录
-    # pytest.param('COE', '/market-place/myrequirement', page_load_threshold, marks=pytest.mark.test), # 个人工作台_我的需求
-    # pytest.param('COE', '/market-place/successcases', page_load_threshold, marks=pytest.mark.test), # 卓越中心_成功案例
-    # pytest.param('COE', '/market-place/appmarket/hotrecommend', page_load_threshold, marks=pytest.mark.test), # 卓越中心_应用市场
-    # pytest.param('COE', '/market-place/requiremanage', page_load_threshold, marks=pytest.mark.test), # 卓越中心_需求管理
-    # pytest.param('COE', '/market-place/backstagemanage/casemanage', page_load_threshold, marks=pytest.mark.test), # 卓越中心_案例管理
+    pytest.param('数据', '/data-insight/lifeCycle', page_load_threshold, marks=pytest.mark.test),
+    pytest.param('COE', '/market-place/databoard', page_load_threshold, marks=pytest.mark.test), #个人工作台_数据看板
+    pytest.param('COE', '/orch/processTask/toDoList', page_load_threshold, marks=pytest.mark.test), # 个人工作台_待办事项
+    pytest.param('COE', '/orch/processTask/process', page_load_threshold, marks=pytest.mark.test), # 个人工作台_我的流程
+    pytest.param('COE', '/orch/processTask/execution', page_load_threshold, marks=pytest.mark.test), # 个人工作台_运行记录
+    pytest.param('COE', '/market-place/myrequirement', page_load_threshold, marks=pytest.mark.test), # 个人工作台_我的需求
+    pytest.param('COE', '/market-place/successcases', page_load_threshold, marks=pytest.mark.test), # 卓越中心_成功案例
+    pytest.param('COE', '/market-place/appmarket/hotrecommend', page_load_threshold, marks=pytest.mark.test), # 卓越中心_应用市场
+    pytest.param('COE', '/market-place/requiremanage', page_load_threshold, marks=pytest.mark.test), # 卓越中心_需求管理
+    pytest.param('COE', '/market-place/backstagemanage/casemanage', page_load_threshold, marks=pytest.mark.test), # 卓越中心_案例管理
     pytest.param('COE', '/market-place/backstagemanage/appmanage/processmanage', page_load_threshold, marks=pytest.mark.test), # 卓越中心_应用管理
     pytest.param('COE', '/market-place/backstagemanage/businesstag', page_load_threshold, marks=pytest.mark.test), # 卓越中心_业务标签
     pytest.param('工单', '/webapp/tasklist/agency', page_load_threshold, marks=pytest.mark.test)
