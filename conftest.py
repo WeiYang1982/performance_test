@@ -180,7 +180,7 @@ def pytest_html_results_summary(prefix, summary, postfix):
             html.td("{{result.fail}}", style="padding: 5px;  border: 1px solid #E6E6E6;")
         ),
         "{% endfor %}",
-        name='summary result')])
+        id='summary')])
 
 
 @pytest.mark.optionalhook
