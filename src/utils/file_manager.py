@@ -1,6 +1,40 @@
-import os
-
 from src.utils.match_name import get_modules_name
+
+module_dict = {
+    "coe": "COE",
+    "data": "数据",
+    "orch": "中控",
+    "order": "工单",
+    "other": "其他"
+}
+
+
+class CountResult:
+    def __init__(self):
+        self.module = self.__dict__
+        self.result = []
+        for k, v in module_dict.items():
+            self.module[k + '_pass'] = 0
+            self.module[k + '_fail'] = 0
+            self.module[k] = 0
+
+    def count_result(self, reports):
+        for report in reports:
+            module_name = get_modules_name(report['id'].split("-")[0].split("[")[1])
+
+            if module_name in module_dict.values():
+                k = [k for k, v in module_dict.items() if v == module_name][0]
+                self.module[k] += 1
+                if report['outcome'] == 'passed':
+                    self.module[k + '_pass'] += 1
+            else:
+                self.module['other'] += 1
+                if report['outcome'] == 'passed':
+                    self.module['other_pass'] += 1
+        for k, v in module_dict.items():
+            self.module[k + '_fail'] = self.module[k] - self.module[k + '_pass']
+            self.result.append({"module": v, "total": self.module[k], "pass": self.module[k + '_pass'], "fail": self.module[k + '_fail']})
+        return self.result
 
 
 def count_result(case_result):
@@ -47,4 +81,9 @@ def count_result(case_result):
 
 
 if __name__ == '__main__':
+    r = [{'id': 'tests/test_page_load.py::test_for_page_performance[工单_建模器-/webapp/modeler-2000]', 'outcome': 'passed'}]
+    c = CountResult()
+    print(c.coe_pass)
+    c.count_result(r)
+    print(c.result)
     pass

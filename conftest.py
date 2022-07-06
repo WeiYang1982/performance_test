@@ -22,7 +22,7 @@ from py.xml import html
 from src.drivers.base_web_driver import BaseWebDriver
 from src.pages.login_page import LoginPage
 from src.utils.config_manager import get_config, get_root_path
-from src.utils.file_manager import count_result
+from src.utils.file_manager import CountResult
 from src.utils.get_file_path import get_file_path, get_dir_path
 from src.utils.match_name import get_modules_name
 from src.utils.send_email import SendEmail
@@ -252,7 +252,8 @@ def pytest_html_results_table_row(report, cells):
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session):
     # 在测试用例执行完成后执行
-    summary_result = count_result(case_result)
+    # summary_result = count_result(case_result)
+    summary_result = CountResult().count_result(case_result)
     mail_info = {
         "host": get_config().get('mail', 'server_host'),
         "from_user": get_config().get('mail', 'from_user'),
