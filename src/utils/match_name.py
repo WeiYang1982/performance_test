@@ -8,7 +8,7 @@
 import difflib
 
 module_keywords = {
-    "COE": ["需求", "流程", "个人工作台", "卓越"],
+    "COE": ["需求", "流程", "个人工作台", "卓越", "卓越中心"],
     "中控": ["控制中心", "中控"],
     "数据": ["数据概览", "数据大屏", "数据"],
     "工单": ["工单"]
@@ -30,5 +30,5 @@ def get_modules_name(origin_name):
 
 
 if __name__ == '__main__':
-    print(get_modules_name("卓越中心"))
+    print(get_modules_name("COE_卓越中心_业务标签"))
     pass
