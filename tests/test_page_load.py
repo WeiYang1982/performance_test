@@ -87,5 +87,25 @@ def test_for_page_performance(driver, name, url, expected):
                   attachment_type=allure.attachment_type.JSON)
 
 
+# @allure.feature("性能测试")
+# @allure.story("前端性能")
+# @allure.title("前端页面加载速度")
+# @pytest.mark.performance
+# @pytest.mark.all
+# @pytest.mark.parametrize("name, url, expected", test_data)
+# def test_for_page_performance(name, url, expected):
+#     from src.modules.page_load import PageLoad
+#     client = PageLoad(os.environ['base_url'])
+#     client.test_runner(case_name=name, case_url=url)
+#     report_url = client.user_report
+#     print(report_url)
+#     result = client.report_parser(client.json_report)
+#     result.update({"report": report_url})
+#     allure.attach(body=json.dumps(result, ensure_ascii=False), name="加载时间",
+#                   attachment_type=allure.attachment_type.JSON)
+#     allure.attach(report_url, name="详细报告", attachment_type=allure.attachment_type.URI_LIST)
+#     assert result['页面加载时间']['avg'] <= page_load_threshold
+
+
 if __name__ == '__main__':
     pass

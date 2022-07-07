@@ -5,6 +5,7 @@ from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.support.event_firing_webdriver import EventFiringWebDriver
 from webdriver_manager.chrome import ChromeDriverManager
 from src.drivers.event_listener import EventListener
+from src.utils.config_manager import get_config
 
 
 class BaseWebDriver:
@@ -54,11 +55,12 @@ class BaseWebDriver:
         if driver_type == 'local':
             self.driver = webdriver.Chrome(desired_capabilities=d, executable_path=executable_path, options=options)
         if driver_type == 'remote':
+            remote_host = get_config().get('global', 'remote_hub_host')
             # options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
             # options.add_experimental_option("debuggerAddress", "172.25.128.26:9222")
             # options.add_argument('auto-open-devtools-for-tabs')
             # self.driver = webdriver.Chrome(executable_path=executable_path, options=options)
-            self.driver = webdriver.Remote(command_executor="http://172.25.128.26:4444/wd/hub", options=options)
+            self.driver = webdriver.Remote(command_executor="http://{}:4444/wd/hub".format(remote_host), options=options)
             # self.driver = webdriver.Remote(command_executor="http://chrome:4444/wd/hub", options=options)
         # self.driver.execute_cdp_cmd("Network.setCacheDisabled", {"cacheDisabled": True})
         # self.driver.execute_cdp_cmd("Performance.enable", {})
