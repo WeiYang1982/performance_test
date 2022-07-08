@@ -16,6 +16,7 @@ from typing import Any, Callable, Optional
 import jinja2
 import pandas as pd
 import pytest
+import requests
 from _pytest.fixtures import SubRequest
 from py.xml import html
 
@@ -26,10 +27,12 @@ from src.utils.file_manager import CountResult
 from src.utils.get_file_path import get_file_path, get_dir_path
 from src.utils.match_name import get_modules_name
 from src.utils.send_email import SendEmail
+from src.utils.html_parser import HTMLParser
 
 ALLURE_ENVIRONMENT_PROPERTIES_FILE = "environment.properties"
 ALLUREDIR_OPTION = "--alluredir"
 case_result = []
+test_result_list = []
 
 
 @pytest.fixture
@@ -286,6 +289,13 @@ def pytest_sessionfinish(session):
     dir_exist, dir_path = get_dir_path('jmeter')
     if dir_exist:
         shutil.rmtree(dir_path)
+
+    parser = HTMLParser()
+    parser.html_parser(report_file)
+    parser.case_detail_parser()
+    parser.case_summary_parser()
+    dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result}
+    requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
 
 
 if __name__ == '__main__':
