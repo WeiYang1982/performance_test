@@ -27,6 +27,8 @@ class HTMLParser:
             # td = tr.xpath('./td')
             self.total += 1
             tmp_d = {}
+            if len(td) == 0:
+                continue
             for i in range(len(self.detail_keys)):
                 tmp_d.update({self.detail_keys[i]: td[i].text})
             self.case_detail_result.append(tmp_d)
@@ -47,8 +49,8 @@ if __name__ == '__main__':
     # html_content = etree.parse(html_file, etree.HTMLParser())
     parser = HTMLParser()
     parser.html_parser(html_file)
-    parser.case_summary_parser()
+    parser.case_detail_parser()
     # print(parser.total)
-    # print(parser.case_detail_result)
-    print(parser.case_summary_result)
+    print(parser.case_detail_result)
+    # print(parser.case_summary_result)
     pass
