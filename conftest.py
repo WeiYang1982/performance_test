@@ -220,7 +220,7 @@ def pytest_html_results_table_row(report, cells):
             cells.insert(6, html.td(datetime.now(), class_="col-time"))
         elif "test_page_load" in report.nodeid:
             type_name = "前端(页面加载)性能"
-            case_name = report.nodeid.split("-")[1]  # + "-" + report.nodeid.split("-")[2]
+            case_name = report.nodeid.split("-")[1] + "-" + report.nodeid.split("-")[2].replace("]", "")
             json_file = glob.glob("*/collect_json/" + module_name + ".json")[0]
             with open(json_file, 'r', encoding='utf-8') as f:
                 duration = json.load(f)['页面加载时间']['avg']

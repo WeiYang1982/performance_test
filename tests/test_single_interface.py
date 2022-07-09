@@ -14,8 +14,8 @@ import pytest
 from src.modules.jmeter_script_executor import JmeterScriptExecutor
 from src.utils.parse_jtl_report import SamplesParser
 
-num_threads = 100
-exec_time = 120
+num_threads = 1
+exec_time = 12
 interface_threshold = 1000
 
 test_data = [
