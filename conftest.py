@@ -294,7 +294,7 @@ def pytest_sessionfinish(session):
     parser.html_parser(report_file)
     parser.case_detail_parser()
     parser.case_summary_parser()
-    dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result}
+    dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result, "statistic": parser.case_summary_result}
     requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
 
 
