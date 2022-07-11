@@ -25,9 +25,9 @@ from src.pages.login_page import LoginPage
 from src.utils.config_manager import get_config, get_root_path
 from src.utils.file_manager import CountResult
 from src.utils.get_file_path import get_file_path, get_dir_path
+from src.utils.html_parser import HTMLParser
 from src.utils.match_name import get_modules_name
 from src.utils.send_email import SendEmail
-from src.utils.html_parser import HTMLParser
 
 ALLURE_ENVIRONMENT_PROPERTIES_FILE = "environment.properties"
 ALLUREDIR_OPTION = "--alluredir"
@@ -244,7 +244,7 @@ def pytest_html_results_table_row(report, cells):
                     html.td("{{module.avg}}"),
                     html.td(expected),
                     html.td(datetime.now(), class_="col-time"),
-                "{% endfor %}"))
+                    "{% endfor %}"))
             )
 
 
@@ -294,7 +294,9 @@ def pytest_sessionfinish(session):
     parser.html_parser(report_file)
     parser.case_detail_parser()
     parser.case_summary_parser()
-    dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result, "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID']}
+    dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result,
+                 "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
+                 "environment": os.environ['env'], "platformURL": os.environ['base_url']}
     requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
 
 
