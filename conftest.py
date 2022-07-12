@@ -290,15 +290,17 @@ def pytest_sessionfinish(session):
     dir_exist, dir_path = get_dir_path('jmeter')
     if dir_exist:
         shutil.rmtree(dir_path)
-
-    parser = HTMLParser()
-    parser.html_parser(report_file)
-    parser.case_detail_parser()
-    parser.case_summary_parser()
-    dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result,
-                 "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
-                 "environment": os.environ['env'], "platformURL": os.environ['base_url']}
-    requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
+    try:
+        parser = HTMLParser()
+        parser.html_parser(report_file)
+        parser.case_detail_parser()
+        parser.case_summary_parser()
+        dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result,
+                     "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
+                     "environment": os.environ['env'], "platformURL": os.environ['base_url']}
+        requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
+    except Exception:
+        pass
 
 
 if __name__ == '__main__':
