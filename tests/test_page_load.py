@@ -6,6 +6,8 @@
 @time:2022/06/02
 """
 import json
+import os
+import platform
 
 import allure
 import pytest
@@ -113,7 +115,12 @@ test_data = [
 @pytest.mark.parametrize("name, url, expected", test_data)
 def test_for_page_performance(name, url, expected):
     import subprocess as sp
-    cmd = '/usr/bin/node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
+    from src.utils.config_manager import get_root_path
+    if platform.system().lower() == 'windows':
+        cmd = 'node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
+    else:
+        cmd = '/usr/bin/node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
+    os.chdir(get_root_path())
     p1 = sp.Popen(cmd, shell=True, stdout=sp.PIPE, encoding='utf-8')
     out = p1.communicate()[0]
     print(out)

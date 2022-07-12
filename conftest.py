@@ -223,7 +223,8 @@ def pytest_html_results_table_row(report, cells):
             case_name = report.nodeid.split("-")[1] + "-" + report.nodeid.split("-")[2].replace("]", "")
             json_file = glob.glob("*/collect_json/" + module_name + ".json")[0]
             with open(json_file, 'r', encoding='utf-8') as f:
-                duration = json.load(f)['页面加载时间']['avg']
+                # duration = json.load(f)['页面加载时间']['avg']
+                duration = json.load(f)['speed-index']
             cells.insert(1, html.td(type_name))
             cells.insert(2, html.td(get_modules_name(module_name)))
             cells.insert(3, html.td(case_name))
