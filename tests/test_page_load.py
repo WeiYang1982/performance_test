@@ -113,7 +113,7 @@ test_data = [
 @pytest.mark.parametrize("name, url, expected", test_data)
 def test_for_page_performance(name, url, expected):
     import subprocess as sp
-    cmd = 'node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
+    cmd = '/usr/bin/node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
     p1 = sp.Popen(cmd, shell=True, stdout=sp.PIPE, encoding='utf-8')
     out = p1.communicate()[0]
     print(out)
