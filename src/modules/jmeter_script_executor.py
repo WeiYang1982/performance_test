@@ -7,6 +7,8 @@
 """
 import glob
 import os
+import shutil
+
 from src.utils.config_manager import get_root_path
 import subprocess as sp
 import urllib.parse
@@ -41,11 +43,8 @@ class JmeterScriptExecutor:
         if not os.path.exists(resultFile):
             os.makedirs(resultFile)
 
-        lines = open(newdir, encoding="utf-8").readlines()
-        fp = open(resultFile + os.sep + runJmeterFile + '.jmx', 'w')  # 打开你要写得文件
-        for s in lines:
-            fp.write(s)  # 勾选通过时间判断结束
-        fp.close()
+        shutil.copy(newdir, resultFile + os.sep + runJmeterFile + '.jmx')
+        shutil.copy(root_dir + "tests/jmeter_scripts/testdata.txt", resultFile + os.sep + "testdata.txt")
         os.chdir(resultFile)
         print("当前路径: ", os.getcwd())
 

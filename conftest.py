@@ -56,6 +56,7 @@ def pytest_addoption(parser):
     parser.addoption("--env", action="store", default="test", help="Test environment: test for default.")
     parser.addoption("--driver_type", action="store", default="local", help="driver type: chrome for default.")
     parser.addoption("--headless", action="store", default='False', help="driver type: chrome for default.")
+    parser.addoption("--mode", action="store", default='performance', help="test type: performance for default.")
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -69,6 +70,7 @@ def set_env(request):
     os.environ['env'] = request.config.getoption("--env")
     os.environ['driver_type'] = request.config.getoption("--driver_type")
     os.environ['headless'] = request.config.getoption("--headless")
+    os.environ['mode'] = request.config.getoption("--mode")
     os.environ['base_url'] = get_config().get(os.environ['env'], 'login_url')
     os.environ['username'] = get_config().get(os.environ['env'], 'username')
     os.environ['password'] = get_config().get(os.environ['env'], 'password')
@@ -295,9 +297,12 @@ def pytest_sessionfinish(session):
         parser.html_parser(report_file)
         parser.case_detail_parser()
         parser.case_summary_parser()
-        dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result,
-                     "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
-                     "environment": os.environ['env'], "platformURL": os.environ['base_url']}
+        if os.environ['mode'] == 'performance':
+            dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result,
+                         "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
+                         "environment": os.environ['env'], "platformURL": os.environ['base_url']}
+        else:
+            dict_body = {"testResult": parser.case_detail_result, "workFlowId": os.environ['BUILD_ID']}
         requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
     except Exception:
         pass
