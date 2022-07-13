@@ -297,12 +297,10 @@ def pytest_sessionfinish(session):
         parser.html_parser(report_file)
         parser.case_detail_parser()
         parser.case_summary_parser()
-        if os.environ['mode'] == 'performance':
-            dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result,
-                         "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
-                         "environment": os.environ['env'], "platformURL": os.environ['base_url']}
-        else:
-            dict_body = {"testResult": parser.case_detail_result, "workFlowId": os.environ['BUILD_ID']}
+        dict_body = {"title": "RPA平台-九宫格Daily Build性能测试报告", "autoCaseList": parser.case_detail_result,
+                     "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
+                     "environment": os.environ['env'], "platformURL": os.environ['base_url'],
+                     "type": os.environ['mode']}
         requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
     except Exception:
         pass
