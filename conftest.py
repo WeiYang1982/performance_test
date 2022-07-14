@@ -33,6 +33,7 @@ ALLURE_ENVIRONMENT_PROPERTIES_FILE = "environment.properties"
 ALLUREDIR_OPTION = "--alluredir"
 case_result = []
 test_result_list = []
+global mark
 
 
 @pytest.fixture
@@ -121,7 +122,9 @@ def cenpprop(add_allure_environment_property: Callable, request, set_env) -> Non
     :param request:
     :return:
     """
-    add_allure_environment_property("mark", request.config.getoption("-m"))
+    global mark
+    mark = request.config.getoption("-m")
+    add_allure_environment_property("mark", mark)
     add_allure_environment_property("env", os.environ['env'])
 
 
@@ -148,7 +151,8 @@ def pytest_runtest_makereport(item):
 
 @pytest.mark.optionalhook
 def pytest_html_report_title(report):
-    report.title = "RPA平台-九宫格Daily Build非功能自动化测试报告"
+    global mark
+    report.title = "RPA平台-九宫格Daily Build性能自动化测试报告:" + mark
 
 
 # 修改Environment部分信息，配置测试报告环境信息
@@ -288,7 +292,9 @@ def pytest_sessionfinish(session):
     with open(report_file, 'w', encoding='utf-8') as f:
         f.writelines(html_mail)
         f.close()
-    mail.send_mail("RPA平台-九宫格Daily Build非功能自动化测试报告", html_mail)
+    global mark
+    title = "RPA平台-九宫格Daily Build性能自动化测试报告:" + mark
+    mail.send_mail(title, html_mail)
     dir_exist, dir_path = get_dir_path('jmeter')
     if dir_exist:
         shutil.rmtree(dir_path)
