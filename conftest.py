@@ -339,9 +339,9 @@ def pytest_generate_tests(metafunc):
     os.environ['password'] = get_config().get(os.environ['env'], 'password')
     os.environ['allure_dir'] = allure_dir
 
-    if 'stability' in mark:
+    if 'stability' in mark and 'stability' in metafunc.fixturenames:
         test_type = 'stability'
-    elif 'interface' in mark or 'all' == mark:
+    elif ('interface' in mark or 'all' == mark) and 'performance' in metafunc.fixturenames:
         test_type = 'performance'
     else:
         test_type = None
