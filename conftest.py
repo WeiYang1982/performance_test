@@ -21,13 +21,17 @@ from _pytest.fixtures import SubRequest
 from py.xml import html
 
 from src.drivers.base_web_driver import BaseWebDriver
+from src.modules.jmeter_script_executor import JmeterScriptExecutor
 from src.pages.login_page import LoginPage
 from src.utils.config_manager import get_config, get_root_path
 from src.utils.file_manager import CountResult
 from src.utils.get_file_path import get_file_path, get_dir_path
 from src.utils.html_parser import HTMLParser
 from src.utils.match_name import get_modules_name
+from src.utils.parse_jtl_report import SamplesParser
 from src.utils.send_email import SendEmail
+from tests.test_single_interface import single_interface_threshold
+from tests.test_interface_stability import interfaces, stability_interface_threshold
 
 ALLURE_ENVIRONMENT_PROPERTIES_FILE = "environment.properties"
 ALLUREDIR_OPTION = "--alluredir"
@@ -36,16 +40,16 @@ test_result_list = []
 global mark
 
 
-@pytest.fixture
-def driver():
-    """
-    打开浏览器
-    :return:
-    """
-    global web_driver
-    web_driver = BaseWebDriver().get_driver()
-    yield web_driver
-    web_driver.quit()
+# @pytest.fixture
+# def driver():
+#     """
+#     打开浏览器
+#     :return:
+#     """
+#     global web_driver
+#     web_driver = BaseWebDriver().get_driver()
+#     yield web_driver
+#     web_driver.quit()
 
 
 def pytest_addoption(parser):
@@ -60,35 +64,17 @@ def pytest_addoption(parser):
     parser.addoption("--mode", action="store", default='performance', help="test type: performance for default.")
 
 
-@pytest.fixture(scope="session", autouse=True)
-def set_env(request):
-    """
-    根据命令行参数--env，设置环境变量
-    :param request:
-    :return:
-    """
-    allure_dir = request.config.getoption(ALLUREDIR_OPTION)
-    os.environ['env'] = request.config.getoption("--env")
-    os.environ['driver_type'] = request.config.getoption("--driver_type")
-    os.environ['headless'] = request.config.getoption("--headless")
-    os.environ['mode'] = request.config.getoption("--mode")
-    os.environ['base_url'] = get_config().get(os.environ['env'], 'login_url')
-    os.environ['username'] = get_config().get(os.environ['env'], 'username')
-    os.environ['password'] = get_config().get(os.environ['env'], 'password')
-    os.environ['allure_dir'] = allure_dir
-
-
-@pytest.fixture()
-@pytest.mark.usefixtures("driver")
-def login(driver):
-    driver.get(os.environ['base_url'] + "/c-page/login")
-    driver.delete_all_cookies()
-    js = 'window.localStorage.clear();'
-    driver.execute_script(js)
-    time.sleep(5)
-    login_page = LoginPage(driver)
-    login_page.login(os.environ['username'], os.environ['password'])
-    time.sleep(5)
+# @pytest.fixture()
+# @pytest.mark.usefixtures("driver")
+# def login(driver):
+#     driver.get(os.environ['base_url'] + "/c-page/login")
+#     driver.delete_all_cookies()
+#     js = 'window.localStorage.clear();'
+#     driver.execute_script(js)
+#     time.sleep(5)
+#     login_page = LoginPage(driver)
+#     login_page.login(os.environ['username'], os.environ['password'])
+#     time.sleep(5)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -114,7 +100,7 @@ def add_allure_environment_property(request: SubRequest) -> Optional[Callable]:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def cenpprop(add_allure_environment_property: Callable, request, set_env) -> None:
+def cenpprop(add_allure_environment_property: Callable, request) -> None:
     """
     自定义需要写入allure环境变量的内容
     :param set_env:
@@ -200,7 +186,7 @@ def pytest_html_results_table_header(cells):
     cells.insert(1, html.th('Type'))
     cells.insert(2, html.th('Module'))
     cells.insert(3, html.th('CaseName'))
-    cells.insert(4, html.th('Duration(ms)', class_="sortable time", col="time"))
+    cells.insert(4, html.th('{{TYPE}}', class_="sortable time", col="time"))
     cells.insert(5, html.th('Expected'))
     cells.insert(6, html.th("Execution Time", class_="sortable time", col="time"))
 
@@ -213,8 +199,8 @@ def pytest_html_results_table_row(report, cells):
         cells.pop(-1)
         case_info = report.nodeid.split("[")[1].replace("]", "")
         module_name = report.nodeid.split("-")[0].split("[")[1]
-        expected = "<" + str(int(report.nodeid.split("-")[-1].replace("]", "")) / 1000) + "s"
         if "test_interface_scenes" in report.nodeid:
+            expected = "<" + str(int(report.nodeid.split("-")[-1].replace("]", "")) / 1000) + "s"
             type_name = "后端(业务操作)性能"
             case_name = report.nodeid.split("-")[1]
             duration = report.nodeid.split("-")[-2]
@@ -225,6 +211,7 @@ def pytest_html_results_table_row(report, cells):
             cells.insert(5, html.td(expected))
             cells.insert(6, html.td(datetime.now(), class_="col-time"))
         elif "test_page_load" in report.nodeid:
+            expected = "<" + str(int(report.nodeid.split("-")[-1].replace("]", "")) / 1000) + "s"
             type_name = "前端(页面加载)性能"
             case_name = report.nodeid.split("-")[1] + "-" + report.nodeid.split("-")[2].replace("]", "")
             json_file = glob.glob("*/collect_json/" + module_name + ".json")[0]
@@ -237,22 +224,45 @@ def pytest_html_results_table_row(report, cells):
             cells.insert(4, html.td(duration, class_="col-time"))
             cells.insert(5, html.td(expected))
             cells.insert(6, html.td(datetime.now(), class_="col-time"))
-        else:
+        elif "test_single_interface" in report.nodeid:
+            expected = "<=" + str(int(report.nodeid.split("-")[-2].replace("]", "")) / 1000) + "s"
             type_name = "后端(单接口)性能"
-            test_state = report.outcome
-            cells.pop()
-            cells.append(html.tr(
-                "{% for module in module_list %}",
-                html.tr(
-                    html.td(test_state, class_="col-result"),
-                    html.td(type_name),
-                    html.td("{{module.name}}"),
-                    html.td("{{module.path}}"),
-                    html.td("{{module.avg}}"),
-                    html.td(expected),
-                    html.td(datetime.now(), class_="col-time"),
-                    "{% endfor %}"))
-            )
+            case_name = report.nodeid.split("-")[1]
+            duration = report.nodeid.split("-")[-3]
+            cells.insert(1, html.td(type_name))
+            cells.insert(2, html.td(module_name))
+            cells.insert(3, html.td(case_name))
+            cells.insert(4, html.td(duration, class_="col-time"))
+            cells.insert(5, html.td(expected))
+            cells.insert(6, html.td(datetime.now(), class_="col-time"))
+        elif "test_interface_stability" in report.nodeid:
+            expected = ">=" + str(int(report.nodeid.split("-")[-2].replace("]", ""))) + "%"
+            type_name = "稳定性回归测试"
+            case_name = report.nodeid.split("-")[1]
+            success_rate = report.nodeid.split("-")[-3]
+            cells.insert(1, html.td(type_name))
+            cells.insert(2, html.td(module_name))
+            cells.insert(3, html.td(case_name))
+            cells.insert(4, html.td(success_rate))
+            cells.insert(5, html.td(expected))
+            cells.insert(6, html.td(datetime.now(), class_="col-time"))
+        # else:
+        #     expected = "<" + str(int(report.nodeid.split("-")[-1].replace("]", "")) / 1000) + "s"
+        #     type_name = "后端(单接口)性能"
+        #     test_state = report.outcome
+        #     cells.pop()
+        #     cells.append(html.tr(
+        #         "{% for module in module_list %}",
+        #         html.tr(
+        #             html.td(test_state, class_="col-result"),
+        #             html.td(type_name),
+        #             html.td("{{module.name}}"),
+        #             html.td("{{module.path}}"),
+        #             html.td("{{module.avg}}"),
+        #             html.td(expected),
+        #             html.td(datetime.now(), class_="col-time"),
+        #             "{% endfor %}"))
+        #     )
 
 
 # def pytest_sessionstart(session):
@@ -280,15 +290,15 @@ def pytest_sessionfinish(session):
     f = open(report_file, 'r', encoding='utf-8')
     html_mail = f.read()
     f.close()
-    exist, csv_file = get_file_path("result.csv")
-    module_list = []
-    if exist:
-        case_list = pd.read_csv(csv_file, encoding='utf-8', header=None).values.tolist()
-        for case in case_list:
-            module_list.append({"name": case[0], "path": case[1], "avg": case[2]})
-
-    html_mail = jinja2.Template(html_mail).render(result_list=summary_result, ENV=os.environ['env'],
-                                                  module_list=module_list)
+    # exist, csv_file = get_file_path("result.csv")
+    # module_list = []
+    # if exist:
+    #     case_list = pd.read_csv(csv_file, encoding='utf-8', header=None).values.tolist()
+    #     for case in case_list:
+    #         module_list.append({"name": case[0], "path": case[1], "avg": case[2]})
+    report_type = "Duration(ms)" if os.environ['mode'] == 'performance' else "Success Rate(%)"
+    html_mail = jinja2.Template(html_mail).render(result_list=summary_result, ENV=os.environ['env'], TYPE=report_type)
+                                                  # module_list=module_list)
     with open(report_file, 'w', encoding='utf-8') as f:
         f.writelines(html_mail)
         f.close()
@@ -308,8 +318,59 @@ def pytest_sessionfinish(session):
                      "environment": os.environ['env'], "platformURL": os.environ['base_url'],
                      "type": os.environ['mode']}
         requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
-    except Exception:
+    except Exception as e:
+        print(e)
         pass
+
+
+def pytest_generate_tests(metafunc):
+    global mark
+
+    test_cases = []
+    allure_dir = metafunc.config.getoption(ALLUREDIR_OPTION)
+    mark = metafunc.config.getoption('-m')
+    os.environ['env'] = metafunc.config.getoption("--env")
+    os.environ['driver_type'] = metafunc.config.getoption("--driver_type")
+    os.environ['headless'] = metafunc.config.getoption("--headless")
+    os.environ['mode'] = metafunc.config.getoption("--mode")
+    os.environ['base_url'] = get_config().get(os.environ['env'], 'login_url')
+    os.environ['username'] = get_config().get(os.environ['env'], 'username')
+    os.environ['password'] = get_config().get(os.environ['env'], 'password')
+    os.environ['allure_dir'] = allure_dir
+
+    if 'stability' in mark:
+        test_type = 'stability'
+    elif 'interface' in mark or 'all' == mark:
+        test_type = 'performance'
+    else:
+        test_type = None
+
+    print("****************")
+    print(os.environ['mode'])
+    print("****************")
+    if test_type is not None:
+        num_threads = get_config().get(test_type, 'interface_test_num_threads')
+        exec_time = get_config().get(test_type, 'interface_test_exec_time')
+        curr_dir = os.getcwd()
+        executor = JmeterScriptExecutor()
+        parser = SamplesParser()
+        for interface in interfaces:
+            result_file = executor.jmeter_executor(interface['filename'], num_threads, exec_time)
+            os.chdir(curr_dir)
+            result_file = glob.glob(result_file)[0]
+            datas = parser.get_samples(result_file)
+            cases = parser.analytics_sample(datas)
+            #  'name', 'path', 'avg', 'max', 'min', 'len', 'throughput', 'success_rate'
+            if test_type == 'stability':
+                for case in cases:
+                    test_cases.append(pytest.param(interface['name'], case[0].replace("-", "_"), case[1], case[-1], stability_interface_threshold, test_type))
+            elif test_type == 'performance':
+                for case in cases:
+                    test_cases.append(pytest.param(interface['name'], case[0].replace("-", "_"), case[1], case[2], single_interface_threshold, test_type))
+        if test_type == 'stability':
+            metafunc.parametrize("module, interface_name, interface_path, success_rate, expected, stability", test_cases)
+        elif test_type == 'performance':
+            metafunc.parametrize("module, interface_name, interface_path, duration, expected, performance", test_cases)
 
 
 if __name__ == '__main__':
