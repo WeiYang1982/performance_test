@@ -30,8 +30,7 @@ from src.utils.html_parser import HTMLParser
 from src.utils.match_name import get_modules_name
 from src.utils.parse_jtl_report import SamplesParser
 from src.utils.send_email import SendEmail
-from tests.test_single_interface import single_interface_threshold
-from tests.test_interface_stability import interfaces, stability_interface_threshold
+
 
 ALLURE_ENVIRONMENT_PROPERTIES_FILE = "environment.properties"
 ALLUREDIR_OPTION = "--alluredir"
@@ -324,6 +323,8 @@ def pytest_sessionfinish(session):
 
 
 def pytest_generate_tests(metafunc):
+    from tests.test_single_interface import single_interface_threshold
+    from tests.test_interface_stability import interfaces, stability_interface_threshold
     global mark
 
     test_cases = []
@@ -345,9 +346,6 @@ def pytest_generate_tests(metafunc):
     else:
         test_type = None
 
-    print("****************")
-    print(os.environ['mode'])
-    print("****************")
     if test_type is not None:
         num_threads = get_config().get(test_type, 'interface_test_num_threads')
         exec_time = get_config().get(test_type, 'interface_test_exec_time')
