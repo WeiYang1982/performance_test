@@ -30,7 +30,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="threadNum" elementType="Argument">
             <stringProp name="Argument.name">threadNum</stringProp>
-            <stringProp name="Argument.value">${__P(threadNum, 10)}</stringProp>
+            <stringProp name="Argument.value">${__P(threadNum, 1)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
             <stringProp name="Argument.desc">并发用户</stringProp>
           </elementProp>
@@ -41,7 +41,7 @@
           </elementProp>
           <elementProp name="serverHost" elementType="Argument">
             <stringProp name="Argument.name">serverHost</stringProp>
-            <stringProp name="Argument.value">${__P(serverHost,172.19.192.44)}</stringProp>
+            <stringProp name="Argument.value">${__P(serverHost,10.20.16.59)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
             <stringProp name="Argument.desc">环境地址</stringProp>
           </elementProp>
@@ -303,7 +303,7 @@ log.info(&quot;===============value: &quot;+vars.get(&quot;value&quot;));
           </hashTree>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="全生命周期分析" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="全生命周期分析" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="循环控制器" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -624,7 +624,7 @@ log.info(&quot;===============value: &quot;+vars.get(&quot;value&quot;));
             <intProp name="Assertion.test_type">16</intProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="false">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="-1970921688">&quot;data&quot; : [ ]</stringProp>
             </collectionProp>
@@ -940,7 +940,7 @@ log.info(&quot;===============value: &quot;+vars.get(&quot;value&quot;));
           <hashTree/>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="需求仪表盘" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="需求仪表盘" enabled="false">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="循环控制器" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -1242,7 +1242,7 @@ log.info(&quot;===============value: &quot;+vars.get(&quot;value&quot;));
             <intProp name="Assertion.test_type">16</intProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="false">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="-1970921688">&quot;data&quot; : [ ]</stringProp>
             </collectionProp>
@@ -1602,7 +1602,7 @@ log.info(&quot;===============value: &quot;+vars.get(&quot;value&quot;));
             <intProp name="Assertion.test_type">16</intProp>
           </ResponseAssertion>
           <hashTree/>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
+          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="false">
             <collectionProp name="Asserion.test_strings">
               <stringProp name="-1970921688">&quot;data&quot; : [ ]</stringProp>
             </collectionProp>
