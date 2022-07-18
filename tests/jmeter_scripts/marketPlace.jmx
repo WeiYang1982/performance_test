@@ -40,7 +40,7 @@
           </elementProp>
           <elementProp name="serverHost" elementType="Argument">
             <stringProp name="Argument.name">serverHost</stringProp>
-            <stringProp name="Argument.value">${__P(serverHost, 172.19.192.44)}</stringProp>
+            <stringProp name="Argument.value">${__P(serverHost, 10.20.18.179)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="serverPort" elementType="Argument">
@@ -759,7 +759,7 @@ vars.put(&quot;value&quot;,value);
           <stringProp name="HTTPSampler.port"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/be/api/v1/requirement/</stringProp>
+          <stringProp name="HTTPSampler.path">/be/api/v1/requirement/search</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>

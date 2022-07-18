@@ -15,8 +15,8 @@ interfaces = [
     {'name': '中控', 'filename': 'login'},
     {'name': '数据', 'filename': 'analytics'},
     {'name': '中控', 'filename': 'orch'},
-    {'name': '卓越中心', 'filename': 'marketPlace'},
-    {'name': '个人工作台', 'filename': 'personalWorkSpace'},
+    {'name': 'COE', 'filename': 'marketPlace'},
+    {'name': 'COE', 'filename': 'personalWorkSpace'},
     {'name': '工单', 'filename': 'orderWork'},
 ]
 
