@@ -58,8 +58,10 @@ def pytest_addoption(parser):
     :return:
     """
     parser.addoption("--env", action="store", default="test", help="Test environment: test for default.")
-    parser.addoption("--driver_type", action="store", default="local", help="driver type: chrome for default.")
-    parser.addoption("--headless", action="store", default='False', help="driver type: chrome for default.")
+    parser.addoption("--base_url", action="store", help="base url: None for default.")
+    parser.addoption("--username", action="store", default="admin", help="login username: admin for default.")
+    parser.addoption("--password", action="store", default="admin", help="login username: admin for default.")
+    parser.addoption("--headless", action="store", default='False', help="browser type : headless or not.")
     parser.addoption("--mode", action="store", default='performance', help="test type: performance for default.")
 
 
@@ -332,12 +334,11 @@ def pytest_generate_tests(metafunc):
     allure_dir = metafunc.config.getoption(ALLUREDIR_OPTION)
     mark = metafunc.config.getoption('-m')
     os.environ['env'] = metafunc.config.getoption("--env")
-    os.environ['driver_type'] = metafunc.config.getoption("--driver_type")
     os.environ['headless'] = metafunc.config.getoption("--headless")
     os.environ['mode'] = metafunc.config.getoption("--mode")
-    os.environ['base_url'] = get_config().get(os.environ['env'], 'login_url')
-    os.environ['username'] = get_config().get(os.environ['env'], 'username')
-    os.environ['password'] = get_config().get(os.environ['env'], 'password')
+    os.environ['base_url'] = get_config().get(os.environ['env'], 'login_url') if metafunc.config.getoption("--base_url") is None else metafunc.config.getoption("--base_url")
+    os.environ['username'] = get_config().get(os.environ['env'], 'username') if metafunc.config.getoption("--username") == get_config().get(os.environ['env'], 'username') else metafunc.config.getoption("--username")
+    os.environ['password'] = get_config().get(os.environ['env'], 'password') if metafunc.config.getoption("--password") == get_config().get(os.environ['env'], 'password') else metafunc.config.getoption("--password")
     os.environ['allure_dir'] = allure_dir
 
     if 'stability' in mark and 'stability' in metafunc.fixturenames:
