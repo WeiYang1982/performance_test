@@ -5,6 +5,9 @@ ADD . /opt/performance_test
 ENV TZ "Asia/Shanghai"
 ENV test_env test
 ENV test_group performance
+ENV base_url "http://172.19.192.44:30000"
+ENV username admin
+ENV password admin
 
 WORKDIR /opt/performance_test
 
@@ -18,4 +21,4 @@ RUN  apt-get update && apt-get install -y libgbm-dev libpangocairo-1.0-0 libx11-
 ENV PATH = $PATH:/opt/node-v18.6.0-linux-x64/bin
 RUN npm install
 
-CMD pytest --env="${test_env}"  -m "${test_group}" --headless=True
+CMD pytest --env="${test_env}"  -m "${test_group}" --base_url=${base_url} --username=${username} --password=${password} --headless=True
