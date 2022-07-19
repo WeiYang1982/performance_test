@@ -4,12 +4,12 @@ pipeline {
     options { timestamps () }
     parameters {
         string(
-            defaultValue: 'smoke',
+            defaultValue: 'performance',
             name: 'test_group',
             trim: true
         )
         string(
-            defaultValue: 'test',
+            defaultValue: 'huawei',
             name: 'test_env',
             trim: true
         )

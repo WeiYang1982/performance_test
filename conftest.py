@@ -145,6 +145,7 @@ def pytest_configure(config):
     # 添加接口地址与项目名称
     config._metadata["项目名称"] = "RPA平台-九宫格Daily Build性能测试"
     config._metadata['测试环境'] = "{{ENV}}"
+    config._metadata['mode'] = "{{MODE}}"
     config._metadata['开始时间'] = time.strftime('%Y-%m-%d %H:%M:%S')
     # config._metadata.pop("JAVA_HOME")
     config._metadata.pop("Packages")
@@ -296,8 +297,7 @@ def pytest_sessionfinish(session):
     #     for case in case_list:
     #         module_list.append({"name": case[0], "path": case[1], "avg": case[2]})
     report_type = "Duration(ms)" if os.environ['mode'] == 'performance' else "Success Rate(%)"
-    html_mail = jinja2.Template(html_mail).render(result_list=summary_result, ENV=os.environ['env'], TYPE=report_type)
-                                                  # module_list=module_list)
+    html_mail = jinja2.Template(html_mail).render(result_list=summary_result, ENV=os.environ['env'], TYPE=report_type, MODE=os.environ['mode'])
     with open(report_file, 'w', encoding='utf-8') as f:
         f.writelines(html_mail)
         f.close()
@@ -316,6 +316,7 @@ def pytest_sessionfinish(session):
                      "statistic": parser.case_summary_result, "workFlowId": os.environ['BUILD_ID'],
                      "environment": os.environ['env'], "platformURL": os.environ['base_url'],
                      "type": os.environ['mode']}
+        print(dict_body)
         requests.post(url=get_config().get('global', 'mail_server'), json=dict_body)
     except Exception as e:
         print(e)
