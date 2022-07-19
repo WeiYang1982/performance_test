@@ -40,7 +40,7 @@
           </elementProp>
           <elementProp name="serverHost" elementType="Argument">
             <stringProp name="Argument.name">serverHost</stringProp>
-            <stringProp name="Argument.value">${__P(serverHost, 10.20.18.179)}</stringProp>
+            <stringProp name="Argument.value">${__P(serverHost,  10.20.18.179)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="serverPort" elementType="Argument">
@@ -94,6 +94,19 @@
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </SetupThreadGroup>
       <hashTree>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP信息头管理器" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">tenant-id</stringProp>
+              <stringProp name="Header.value">1</stringProp>
+            </elementProp>
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name">Content-Type</stringProp>
+              <stringProp name="Header.value">application/json</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
         <SyncTimer guiclass="TestBeanGUI" testclass="SyncTimer" testname="同步定时器" enabled="false">
           <intProp name="groupSize">0</intProp>
           <longProp name="timeoutInMs">2000</longProp>
@@ -101,7 +114,7 @@
         <hashTree/>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="登录" enabled="true">
           <boolProp name="TransactionController.includeTimers">false</boolProp>
-          <boolProp name="TransactionController.parent">false</boolProp>
+          <boolProp name="TransactionController.parent">true</boolProp>
         </TransactionController>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="获取公钥" enabled="true">
@@ -208,7 +221,7 @@ vars.put(&quot;base&quot;,base);
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{&quot;authMethod&quot;:0,&quot;value&quot;:&quot;${value}&quot;, &quot;password&quot;: &quot;admin&quot;}</stringProp>
+                  <stringProp name="Argument.value">{&quot;authMethod&quot;:0,&quot;value&quot;:&quot;${value}&quot;, &quot;password&quot;: &quot;${pwd}&quot;}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
@@ -251,13 +264,17 @@ vars.put(&quot;base&quot;,base);
               <boolProp name="resetInterpreter">false</boolProp>
               <stringProp name="script">import com.company.*;
 
-//log.info(&quot;===============&quot;+vars.get(&quot;pwd&quot;));
+log.info(&quot;===============datasalt: &quot;+vars.get(&quot;datasalt&quot;));
+log.info(&quot;===============datatime: &quot;+vars.get(&quot;datatime&quot;));
+log.info(&quot;===============key: &quot;+vars.get(&quot;key&quot;));
+log.info(&quot;===============base: &quot;+vars.get(&quot;base&quot;));
+
 //vars.put(&quot;pwd&quot;,&quot;admin&quot;);
 var value = Encode.finalEncrypt(vars.get(&quot;pwd&quot;),vars.get(&quot;datasalt&quot;),vars.get(&quot;datatime&quot;),vars.get(&quot;key&quot;),vars.get(&quot;base&quot;));
 //log.info(&quot;===============&quot;+vars.get(&quot;pwd&quot;));
 
 vars.put(&quot;value&quot;,value);
-
+log.info(&quot;===============value: &quot;+vars.get(&quot;value&quot;));
 
 </stringProp>
             </BeanShellPreProcessor>
@@ -287,6 +304,47 @@ vars.put(&quot;value&quot;,value);
             </BeanShellPostProcessor>
             <hashTree/>
           </hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="登录-v2.5" enabled="false">
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;username&quot;: &quot;${user}&quot;, &quot;password&quot;: &quot;${pwd}&quot;, &quot;code&quot;: &quot;&quot;, &quot;uuid&quot;: &quot;&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain"></stringProp>
+          <stringProp name="HTTPSampler.port"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/gateway/ncs/system/auth/login</stringProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON提取" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">token</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.jwtToken</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+          <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell 后置处理程序" enabled="true">
+            <boolProp name="resetInterpreter">false</boolProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="script">props.put(&quot;token&quot;,vars.get(&quot;token&quot;));
+</stringProp>
+          </BeanShellPostProcessor>
+          <hashTree/>
         </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="成功案例" enabled="true">
@@ -818,7 +876,7 @@ vars.put(&quot;value&quot;,value);
           <longProp name="timeoutInMs">2000</longProp>
         </SyncTimer>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="后台管理-案例管理" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="后台管理-案例管理" enabled="false">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="用户定义的变量" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="page" elementType="HTTPArgument">
