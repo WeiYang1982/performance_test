@@ -229,7 +229,7 @@ def pytest_html_results_table_row(report, cells):
         elif "test_single_interface" in report.nodeid:
             expected = "<=" + str(int(report.nodeid.split("-")[-2].replace("]", "")) / 1000) + "s"
             type_name = "后端(单接口)性能"
-            case_name = report.nodeid.split("-")[1]
+            case_name = report.nodeid.split("-")[1] + "——" + report.nodeid.split("-")[2]
             duration = report.nodeid.split("-")[-3]
             cells.insert(1, html.td(type_name))
             cells.insert(2, html.td(module_name))
@@ -240,7 +240,7 @@ def pytest_html_results_table_row(report, cells):
         elif "test_interface_stability" in report.nodeid:
             expected = ">=" + str(int(report.nodeid.split("-")[-2].replace("]", ""))) + "%"
             type_name = "稳定性回归测试"
-            case_name = report.nodeid.split("-")[1]
+            case_name = report.nodeid.split("-")[1] + "——" + report.nodeid.split("-")[2]
             success_rate = report.nodeid.split("-")[-3]
             cells.insert(1, html.td(type_name))
             cells.insert(2, html.td(module_name))
