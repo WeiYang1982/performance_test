@@ -4,7 +4,7 @@ require('dotenv').config();
 async function login(passContext) {
 
     const {browser, page} = passContext;
-    let login_url = process.env.base_url + "/c-page/login";
+    let login_url = process.env.base_url + "/config-center/login";
     // waitUntil对应的参数如下：
     // load - 页面的load事件触发时
     // domcontentloaded - 页面的 DOMContentLoaded 事件触发时
@@ -15,7 +15,8 @@ async function login(passContext) {
     try {
         await page.click("input[type=radio][value='0']")
     }catch (e) {
-        console.log(e)
+        console.warn("尝试使用系统用户登录")
+        console.warn(e)
     }
     const username = process.env.username;
     const password = process.env.password;

@@ -35,7 +35,7 @@ class PageLoadAnalytics:
             "Url": url,
             "number": number,
         }
-        time.sleep(5)
+        # time.sleep(5)
         time_result = self.__get_page_load_time(url, int(number), expected_element)
         result_temp.update(time_result)
         result.append(result_temp)
@@ -76,7 +76,7 @@ class PageLoadAnalytics:
             driver.get(Url)
             driver.refresh()
             # WaitForElement.wait_until(driver, EC.presence_of_element_located(expected_element))
-            time.sleep(10)
+            # time.sleep(10)
 
             full_log = driver.execute_script("let mytiming = window.performance.timing; return mytiming;")
             entries = driver.execute_script("return window.performance.getEntries()[0].duration;")

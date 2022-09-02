@@ -12,7 +12,7 @@ async function openBaseBrowser() {
         defaultViewport: {width: 1366, height: 768},
         // defaultViewport: null,
         // 启动参数
-        args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-cache', '--no-first-run', '--no-first-run', '--disable-application-cache'],
+        args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-cache', '--no-first-run', '--disable-application-cache'],
         // 是否自动打开调试工具(boolean)，若此值为true，headless自动置为false
         devtools: false,
         // 设置超时时间(number)，若此值为0，则禁用超时

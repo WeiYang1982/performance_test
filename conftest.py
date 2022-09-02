@@ -23,6 +23,7 @@ from py.xml import html
 from src.drivers.base_web_driver import BaseWebDriver
 from src.modules.jmeter_script_executor import JmeterScriptExecutor
 from src.pages.login_page import LoginPage
+from src.utils.capture_screenshot import ScreenShot
 from src.utils.config_manager import get_config, get_root_path
 from src.utils.file_manager import CountResult
 from src.utils.get_file_path import get_file_path, get_dir_path
@@ -39,16 +40,16 @@ test_result_list = []
 global mark
 
 
-# @pytest.fixture
-# def driver():
-#     """
-#     打开浏览器
-#     :return:
-#     """
-#     global web_driver
-#     web_driver = BaseWebDriver().get_driver()
-#     yield web_driver
-#     web_driver.quit()
+@pytest.fixture
+def driver():
+    """
+    打开浏览器
+    :return:
+    """
+    global web_driver
+    web_driver = BaseWebDriver().get_driver()
+    yield web_driver
+    web_driver.quit()
 
 
 def pytest_addoption(parser):
@@ -63,19 +64,20 @@ def pytest_addoption(parser):
     parser.addoption("--password", action="store", default="admin", help="login username: admin for default.")
     parser.addoption("--headless", action="store", default='False', help="browser type : headless or not.")
     parser.addoption("--mode", action="store", default='performance', help="test type: performance for default.")
+    parser.addoption("--driver_type", action="store", default="local", help="driver type: chrome for default.")
 
 
-# @pytest.fixture()
-# @pytest.mark.usefixtures("driver")
-# def login(driver):
-#     driver.get(os.environ['base_url'] + "/c-page/login")
-#     driver.delete_all_cookies()
-#     js = 'window.localStorage.clear();'
-#     driver.execute_script(js)
-#     time.sleep(5)
-#     login_page = LoginPage(driver)
-#     login_page.login(os.environ['username'], os.environ['password'])
-#     time.sleep(5)
+@pytest.fixture()
+@pytest.mark.usefixtures("driver")
+def login(driver):
+    driver.get(os.environ['base_url'] + "/c-page/login")
+    driver.delete_all_cookies()
+    js = 'window.localStorage.clear();'
+    driver.execute_script(js)
+    time.sleep(5)
+    login_page = LoginPage(driver)
+    login_page.login(os.environ['username'], os.environ['password'])
+    time.sleep(5)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -126,6 +128,7 @@ def pytest_runtest_makereport(item):
     global web_driver
     global result
     case_dic = {}
+    file_name = None
     # report.description = str(item.function.__doc__)
     # print("report description" + report.description)
     if report.when == 'call':
@@ -134,12 +137,23 @@ def pytest_runtest_makereport(item):
         case_dic["id"] = report.nodeid
         case_dic["outcome"] = report.outcome
         case_result.append(case_dic)
+        if (report.skipped and xfail) or (report.failed and not xfail):
+            # 获取测试用例代码中webDriver参数来获取浏览器进行抓屏
+            if 'web_driver' in locals().keys():
+                file_name = '失败截图'
+            pass
+        if report.passed:
+            file_name = '结束截图'
+        try:
+            ScreenShot.take_screenshot(web_driver, file_name)
+        except Exception as e:
+            print(e)
 
 
 @pytest.mark.optionalhook
 def pytest_html_report_title(report):
     global mark
-    report.title = "RPA平台-九宫格Daily Build性能自动化测试报告:" + mark
+    report.title = "RPA平台-非功能自动化测试报告:" + mark
 
 
 # 修改Environment部分信息，配置测试报告环境信息
@@ -218,8 +232,8 @@ def pytest_html_results_table_row(report, cells):
             case_name = report.nodeid.split("-")[1] + "-" + report.nodeid.split("-")[2].replace("]", "")
             json_file = glob.glob("*/collect_json/" + module_name + ".json")[0]
             with open(json_file, 'r', encoding='utf-8') as f:
-                # duration = json.load(f)['页面加载时间']['avg']
-                duration = json.load(f)['speed-index']
+                duration = json.load(f)['页面加载时间']['avg']
+                # duration = json.load(f)['speed-index']
             cells.insert(1, html.td(type_name))
             cells.insert(2, html.td(get_modules_name(module_name)))
             cells.insert(3, html.td(case_name))
@@ -246,6 +260,17 @@ def pytest_html_results_table_row(report, cells):
             cells.insert(2, html.td(module_name))
             cells.insert(3, html.td(case_name))
             cells.insert(4, html.td(success_rate))
+            cells.insert(5, html.td(expected))
+            cells.insert(6, html.td(datetime.now(), class_="col-time"))
+        elif "test_dependency_scan" in report.nodeid:
+            expected = report.nodeid.split("-")[-1].replace("]", "")
+            type_name = "第三方依赖扫描"
+            case_name = "-".join(report.nodeid.split("-")[1:][:-2])
+            duration = report.nodeid.split("-")[-2]
+            cells.insert(1, html.td(type_name))
+            cells.insert(2, html.td(get_modules_name(module_name)))
+            cells.insert(3, html.td(case_name))
+            cells.insert(4, html.td(duration, class_="col-time"))
             cells.insert(5, html.td(expected))
             cells.insert(6, html.td(datetime.now(), class_="col-time"))
         # else:
@@ -336,6 +361,7 @@ def pytest_generate_tests(metafunc):
     os.environ['env'] = metafunc.config.getoption("--env")
     os.environ['headless'] = metafunc.config.getoption("--headless")
     os.environ['mode'] = metafunc.config.getoption("--mode")
+    os.environ['driver_type'] = metafunc.config.getoption("--driver_type")
     os.environ['base_url'] = get_config().get(os.environ['env'], 'login_url') if metafunc.config.getoption("--base_url") is None else metafunc.config.getoption("--base_url")
     os.environ['username'] = get_config().get(os.environ['env'], 'username') if metafunc.config.getoption("--username") == get_config().get(os.environ['env'], 'username') else metafunc.config.getoption("--username")
     os.environ['password'] = get_config().get(os.environ['env'], 'password') if metafunc.config.getoption("--password") == get_config().get(os.environ['env'], 'password') else metafunc.config.getoption("--password")

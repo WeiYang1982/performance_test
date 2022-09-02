@@ -12,6 +12,8 @@ import platform
 import allure
 import pytest
 from selenium.webdriver.common.by import By
+from src.modules.page_load_analytics import PageLoadAnalytics
+from src.utils.config_manager import get_root_path
 
 base_expected_element = (By.XPATH, "//ul[@role='menu']")
 
@@ -61,30 +63,45 @@ test_data = [
     pytest.param('工单_发起流程', '/webapp/tasklist/mystart', page_load_threshold, marks=pytest.mark.test),
     pytest.param('工单_数据管理', '/webapp/positioning', page_load_threshold, marks=pytest.mark.test),
     pytest.param('工单_我的流程', '/webapp/myProcess', page_load_threshold, marks=pytest.mark.test),
-    pytest.param('工单_建模器', '/webapp/modeler', page_load_threshold, marks=pytest.mark.test)
+    pytest.param('工单_建模器', '/webapp/modeler', page_load_threshold, marks=pytest.mark.test),
+
+    # pytest.param('流程智能', '/pi/homepage', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('系统设置_用户管理_用户管理', '/config-center/users', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('系统设置_用户管理_角色管理', '/config-center/roles', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('系统设置_用户管理_菜单管理', '/config-center/menus', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('系统设置_用户管理_组织管理', '/config-center/organizations', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('系统设置_通知中心_通知设置', '/config-center/alertSettings', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('系统设置_审计日志', '/config-center/auditLog', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('系统设置_个人中心_账户设置', '/config-center/accountSettings', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('虚拟中控_任务管理_任务计划', '/vorch/JobPlan', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('虚拟中控_任务管理_任务列表', '/vorch/Executions', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('虚拟中控_流程管理_流程列表', '/vorch/ProcessList', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('虚拟中控_机器人管理_执行器管理', '/vorch/ExecRobot', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('虚拟中控_授权注册_厂商管理', '/vorch/SupplierRegistration', page_load_threshold, marks=pytest.mark.test),
+    # pytest.param('虚拟中控_数据资产_变量管理', '/vorch/Variables', page_load_threshold, marks=pytest.mark.test),
 ]
 
 
-# @allure.feature("性能测试")
-# @allure.story("前端性能")
-# @allure.title("前端页面加载速度")
-# @pytest.mark.performance
-# @pytest.mark.all
-# @pytest.mark.parametrize("name, url, expected", test_data)
-# # @pytest.mark.usefixtures("driver")
-# # @pytest.mark.usefixtures("login")
-# def test_for_page_performance(driver, name, url, expected):
-#     """
-#     测试前端页面加载速度
-#     """
-#     analytics = PageLoadAnalytics(driver)
-#     test_result = analytics.test_untitled_test_case(name, os.environ['base_url'] + url)
-#     allure.dynamic.title(name)
-#     load_time = test_result[0]['页面加载时间']['avg']
-#     print(load_time)
-#     assert load_time <= expected
-#     allure.attach(body=json.dumps(test_result, ensure_ascii=False), name="加载时间",
-#                   attachment_type=allure.attachment_type.JSON)
+@allure.feature("性能测试")
+@allure.story("前端性能")
+@allure.title("前端页面加载速度")
+@pytest.mark.performance
+@pytest.mark.all
+@pytest.mark.parametrize("name, url, expected", test_data)
+# @pytest.mark.usefixtures("driver")
+@pytest.mark.usefixtures("login")
+def test_for_page_performance(driver, name, url, expected):
+    """
+    测试前端页面加载速度
+    """
+    analytics = PageLoadAnalytics(driver)
+    test_result = analytics.test_untitled_test_case(name, os.environ['base_url'] + url)
+    allure.dynamic.title(name)
+    load_time = test_result[0]['页面加载时间']['avg']
+    print(load_time)
+    assert load_time <= expected
+    allure.attach(body=json.dumps(test_result, ensure_ascii=False), name="加载时间",
+                  attachment_type=allure.attachment_type.JSON)
 
 
 # @allure.feature("性能测试")
@@ -107,28 +124,31 @@ test_data = [
 #     assert result['页面加载时间']['avg'] <= page_load_threshold
 
 
-@allure.feature("性能测试")
-@allure.story("前端性能")
-@allure.title("前端页面加载速度")
-@pytest.mark.performance
-@pytest.mark.all
-@pytest.mark.parametrize("name, url, expected", test_data)
-def test_for_page_performance(name, url, expected):
-    import subprocess as sp
-    from src.utils.config_manager import get_root_path
-    if platform.system().lower() == 'windows':
-        cmd = 'node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
-    else:
-        cmd = '/usr/bin/node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
-    os.chdir(get_root_path())
-    p1 = sp.Popen(cmd, shell=True, stdout=sp.PIPE, encoding='utf-8')
-    out = p1.communicate()[0]
-    json_result = json.loads(out.replace("Promise { <pending> }", ""))
-    allure.attach(body=json.dumps(json_result, ensure_ascii=False), name="加载时间",
-                  attachment_type=allure.attachment_type.JSON)
-    # assert json_result['性能'] >= 0.8
-    assert json_result['speed-index'] <= expected
-    os.chdir(os.getcwd())
+# @allure.feature("性能测试")
+# @allure.story("前端性能")
+# @allure.title("前端页面加载速度")
+# @pytest.mark.performance
+# @pytest.mark.all
+# @pytest.mark.parametrize("name, url, expected", test_data)
+# def test_for_page_performance(name, url, expected):
+#     import subprocess as sp
+#     from src.utils.config_manager import get_root_path
+#     if platform.system().lower() == 'windows':
+#         cmd = 'node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
+#     else:
+#         cmd = '/usr/bin/node -e "require(\\"%s\\").init(\\"%s\\", \\"%s\\")"' % ('./src/js/run_lighthouse_test.js', name, url)
+#     os.chdir(get_root_path())
+#     p1 = sp.Popen(cmd, shell=True, stdout=sp.PIPE, encoding='utf-8')
+#     out = p1.communicate()[0]
+#     # json_result = json.loads(out.replace("Promise { <pending> }", ""))
+#     repost_file = get_root_path() + os.sep + 'report' + os.sep + 'collect_json' + os.sep + name + '.json'
+#     with open(repost_file, 'r', encoding='utf-8') as f:
+#         json_result = json.load(f)
+#     allure.attach(body=json.dumps(json_result, ensure_ascii=False), name="加载时间",
+#                   attachment_type=allure.attachment_type.JSON)
+#     # assert json_result['性能'] >= 0.8
+#     assert json_result['speed-index'] <= expected
+#     os.chdir(os.getcwd())
 
 
 if __name__ == '__main__':

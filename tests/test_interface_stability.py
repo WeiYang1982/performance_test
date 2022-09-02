@@ -13,7 +13,7 @@ stability_interface_threshold = 95
 
 interfaces = [
     {'name': '数据', 'filename': 'analytics'},
-    {'name': '中控', 'filename': 'orch'},
+    # {'name': '中控', 'filename': 'orch'},
     {'name': 'COE', 'filename': 'marketPlace'},
     {'name': 'COE', 'filename': 'personalWorkSpace'},
     {'name': '工单', 'filename': 'orderWork'},

@@ -15,7 +15,7 @@ def get_root_path():
 
 def get_config():
     root_path = get_root_path()
-    config = configparser.ConfigParser()
+    config = configparser.RawConfigParser()
     config.read(root_path + '%ssetup.cfg' % os.sep, encoding='utf-8')
     return config
 

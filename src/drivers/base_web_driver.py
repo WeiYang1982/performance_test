@@ -54,6 +54,7 @@ class BaseWebDriver:
         driver_type = os.environ['driver_type']
         if driver_type == 'local':
             self.driver = webdriver.Chrome(desired_capabilities=d, executable_path=executable_path, options=options)
+            self.driver.get_cookies()
         if driver_type == 'remote':
             remote_host = get_config().get('global', 'remote_hub_host')
             # options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
@@ -66,6 +67,7 @@ class BaseWebDriver:
         # self.driver.execute_cdp_cmd("Performance.enable", {})
         self.driver = EventFiringWebDriver(self.driver, EventListener())
         self.driver.implicitly_wait(5)
+
 
     def get_driver(self):
         return self.driver
