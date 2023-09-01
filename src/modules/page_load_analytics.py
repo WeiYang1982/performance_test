@@ -53,6 +53,7 @@ class PageLoadAnalytics:
         :param number: 加载次数
         :return:
         """
+        data = set()
         driver = self.driver
         page_load_time = []
         dom_tree_time = []
@@ -76,7 +77,7 @@ class PageLoadAnalytics:
             driver.get(Url)
             driver.refresh()
             # WaitForElement.wait_until(driver, EC.presence_of_element_located(expected_element))
-            # time.sleep(10)
+            time.sleep(5)
 
             full_log = driver.execute_script("let mytiming = window.performance.timing; return mytiming;")
             entries = driver.execute_script("return window.performance.getEntries()[0].duration;")

@@ -65,7 +65,7 @@ class BaseWebDriver:
             # self.driver = webdriver.Remote(command_executor="http://chrome:4444/wd/hub", options=options)
         # self.driver.execute_cdp_cmd("Network.setCacheDisabled", {"cacheDisabled": True})
         # self.driver.execute_cdp_cmd("Performance.enable", {})
-        self.driver = EventFiringWebDriver(self.driver, EventListener())
+        # self.driver = EventFiringWebDriver(self.driver, EventListener())
         self.driver.implicitly_wait(5)
 
 
@@ -79,11 +79,15 @@ if __name__ == '__main__':
     # chrome_options.add_experimental_option('debuggerAddress', '127.0.0.1:11111')
     # chrome_options.add_argument("--start-maximized")
     # web_driver = BaseWebDriver(options=chrome_options)
+    from selenium.webdriver.common.by import By
+    # os.environ['headless'] = "False"
+    # os.environ['driver_type'] = "local"
     web_driver = BaseWebDriver()
     try:
-        web_driver.get_driver().get("http://www.baidu.com")
-        for e in web_driver.get_driver().get_log('performance'):
-            print(e)
+        web_driver.get_driver().get("https://open.spotify.com/")
+        web_driver.get_driver().find_element(By.XPATH, "//button[@data-testid = 'login-button']").click()
+        # for e in web_driver.get_driver().get_log('performance'):
+        #     print(e)
     #     # web_driver.loop_find_element(web_driver.find_elements_by_id, 'kw')[0].send_keys("asdasd")
     #     # web_driver.find_element(By.ID, 'su').click()
     #     # web_driver.find_element(By.ID, 'ass')

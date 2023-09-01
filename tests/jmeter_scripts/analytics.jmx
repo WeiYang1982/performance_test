@@ -41,7 +41,7 @@
           </elementProp>
           <elementProp name="serverHost" elementType="Argument">
             <stringProp name="Argument.name">serverHost</stringProp>
-            <stringProp name="Argument.value">${__P(serverHost, 10.20.18.179)}</stringProp>
+            <stringProp name="Argument.value">${__P(serverHost, 172.20.102.242)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
             <stringProp name="Argument.desc">环境地址</stringProp>
           </elementProp>
@@ -63,7 +63,7 @@
           </elementProp>
           <elementProp name="time" elementType="Argument">
             <stringProp name="Argument.name">time</stringProp>
-            <stringProp name="Argument.value">${__P(time, 600)}</stringProp>
+            <stringProp name="Argument.value">${__P(time, 30)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
             <stringProp name="Argument.desc">运行时间</stringProp>
           </elementProp>
@@ -2738,7 +2738,7 @@ log.info(&quot;===============value: &quot;+vars.get(&quot;value&quot;));
         <boolProp name="useGroupName">true</boolProp>
       </ResultCollector>
       <hashTree/>
-      <BackendListener guiclass="BackendListenerGui" testclass="BackendListener" testname="后端监听器" enabled="true">
+      <BackendListener guiclass="BackendListenerGui" testclass="BackendListener" testname="后端监听器" enabled="false">
         <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
           <collectionProp name="Arguments.arguments">
             <elementProp name="influxdbMetricsSender" elementType="Argument">

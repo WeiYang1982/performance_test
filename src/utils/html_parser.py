@@ -9,6 +9,7 @@ import json
 
 from lxml import etree
 import pandas as pd
+import re
 
 
 class HTMLParser:
@@ -72,30 +73,48 @@ class HTMLParser:
                 except IndexError:
                     image_name = td_list[0].xpath("./*/text()")[0]
                 package_name = ";".join(td_list[2].xpath("./*/text()"))
-                # if image_name in tmp_d:
-                #     if level in tmp_d[image_name]:
-                #         count = tmp_d[image_name][level] + count
-                #         tmp_d[image_name][level] = count
-                #     else:
-                #         tmp_d[image_name][level] = count
-                # else:
-                #     tmp_d.update({image_name: {level: count}})
+                tmp_d.update({"module_name": image_name, "package_name": package_name})
                 tmp_d['level'] = {level: count}
-                tmp_d.update({"package_name": package_name, "image_name": image_name})
             if tmp_d != {}:
                 result.append(tmp_d)
         return result
 
+    def get_pd_detail_report(self):
+        target_result = []
+        vulnerabilities = self.html_content.xpath("//div[@class='subsectioncontent']")
+        files = self.html_content.xpath("//h3[@class='subsectionheader standardsubsection']/text()")
+        for i in range(len(files)):
+            tmp_num = []
+            # 取漏洞编号
+            nums = vulnerabilities[i].xpath("./div[@class='subsectioncontent standardsubsection']/p/b/a")
+            # not(*)   不包含下级节点
+            # not(@class)  属性中不包含class
+            # scores = vulnerabilities[i].xpath("./div[@class='subsectioncontent standardsubsection'][2]/ul/li[not(*) and not(@class)][1]/text()")
+            # tmp_score = re.findall("[0-9]?[0-9].[0-9]", str(scores))
+            # score_index = tmp_score.index(max(tmp_score))
+            # level = scores[score_index][12:][:-6]
+            # print(level)
+            for num in nums:
+                # tmp_scores = num.xpath("../../")
+                tmp_num.append(num.text)
+                print(num.text)
+            module_name = files[i].split("@")[1]
+            target_result.append({files[i]: tmp_num})
+        return target_result
+
 
 if __name__ == '__main__':
-    html_file = "http://ci-bj.mycyclone.com/job/TestGroup/view/%E5%AE%89%E5%85%A8%E6%89%AB%E6%8F%8F/job/dependency_check/119/artifact/dependency-check-report.html"
+    html_file = "http://ci-bj.mycyclone.com/job/TestGroup/view/%E5%AE%89%E5%85%A8%E6%89%AB%E6%8F%8F/job/dependency_check/142/artifact/dependency-check-report.html"
     # html_content = etree.parse(html_file, etree.HTMLParser())
     parser = HTMLParser()
     parser.html_parser(html_file)
-    r = parser.get_pd_report_summary_result()
+    summary = parser.get_pd_report_summary_result()
     # print(parser.total)
-    print(r)
+    detail = parser.get_pd_detail_report()
+    for s in range(len(summary)):
+        summary[s].update({"vulnerabilities": detail[s]})
+
     with open('result', 'w', encoding='utf-8') as f:
-        json.dump(r, f, ensure_ascii=False)
+        json.dump(summary, f, ensure_ascii=False)
     # print(parser.case_summary_result)
-    pass
+    # pass

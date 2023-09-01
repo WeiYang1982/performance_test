@@ -13,7 +13,8 @@ from src.utils.wait_for_element import WaitForElement
 
 class LoginPage(BasePage):
     input_loc = (By.CLASS_NAME, 'ant-input')
-    login_button_loc = (By.XPATH, "//button[@type='submit']")
+    login_button_loc = (By.XPATH, "//button[@type='submit']")  # 默认登录界面
+    # login_button_loc = (By.CLASS_NAME, "login-button")  # 开启内部登录
 
     @property
     def username(self):
@@ -34,7 +35,7 @@ class LoginPage(BasePage):
         self.username.send_keys(username)
         self.password.send_keys(password)
         self.login_button.click()
-        WaitForElement.wait_until(self.driver, self.EC.presence_of_element_located((By.CLASS_NAME, "userinfo")))
+        # WaitForElement.wait_until(self.driver, self.EC.presence_of_element_located((By.CLASS_NAME, "userinfo")))
 
 
 if __name__ == '__main__':

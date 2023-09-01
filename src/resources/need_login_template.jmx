@@ -134,42 +134,75 @@
           <boolProp name="LIMIT_MAX_THREAD_NUMBER">false</boolProp>
         </com.blazemeter.jmeter.controller.ParallelSampler>
         <hashTree>
-          {%  %}
-          <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="test sql request 1" enabled="true">
-            <boolProp name="TransactionController.includeTimers">false</boolProp>
-            <boolProp name="TransactionController.parent">false</boolProp>
-          </TransactionController>
-          <hashTree>
-                    <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="use database" enabled="true">
-                      <stringProp name="dataSource">${db_connection}</stringProp>
-                      <stringProp name="queryType">Callable Statement</stringProp>
-                      <stringProp name="query">USE data_entity</stringProp>
-                      <stringProp name="queryArguments"></stringProp>
-                      <stringProp name="queryArgumentsTypes"></stringProp>
-                      <stringProp name="variableNames"></stringProp>
-                      <stringProp name="resultVariable"></stringProp>
-                      <stringProp name="queryTimeout"></stringProp>
-                      <stringProp name="resultSetMaxRows"></stringProp>
-                      <stringProp name="resultSetHandler">Store as String</stringProp>
-                    </JDBCSampler>
-                <hashTree/>
-                    <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="test sql request 1" enabled="true">
-                      <stringProp name="dataSource">${db_connection}</stringProp>
-                      <stringProp name="queryType">Callable Statement</stringProp>
-                      <stringProp name="query">select * from data_entity.requirement</stringProp>
-                      <stringProp name="queryArguments"></stringProp>
-                      <stringProp name="queryArgumentsTypes"></stringProp>
-                      <stringProp name="variableNames"></stringProp>
-                      <stringProp name="resultVariable"></stringProp>
-                      <stringProp name="queryTimeout"></stringProp>
-                      <stringProp name="resultSetMaxRows"></stringProp>
-                      <stringProp name="resultSetHandler">Store as String</stringProp>
-                    </JDBCSampler>
-                <hashTree/>
-            </hashTree>
-          </hashTree>
-        </hashTree>
+          <!--   开启HTML的自动转义处理       -->
+        {% autoescape true %}
+        {% for case in case_list %}
+         {% for key, value in case.items() %}
+            {% for case in value %}
+                  {% if case.preSql is not none and ";" in case.preSql %}
+                    {% set sql_list = case.preSql.split(";") %}
+                  {% else %}
+                    {% set sql_list = none %}
+                  {% endif %}
 
+                  {% if sql_list is not none %}
+                  {% for sql in sql_list %}
+                    {% if sql is not none and sql.strip() != "" %}
+                        {% if "<" in sql and ">" in sql %}
+                            <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="{{case.description}}" enabled="true">
+                                <boolProp name="TransactionController.includeTimers">false</boolProp>
+                                <boolProp name="TransactionController.parent">false</boolProp>
+                              </TransactionController>
+                            <hashTree>
+                            {% set sub_sql = sql.strip().split(">") %}
+                            {% for sql in sub_sql %}
+                                <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="use database" enabled="true">
+                                  <stringProp name="dataSource">${db_connection}</stringProp>
+                                  <stringProp name="queryType">Callable Statement</stringProp>
+                                  <stringProp name="query">{{sql.replace("<", "use ")}}</stringProp>
+                                  <stringProp name="queryArguments"></stringProp>
+                                  <stringProp name="queryArgumentsTypes"></stringProp>
+                                  <stringProp name="variableNames"></stringProp>
+                                  <stringProp name="resultVariable"></stringProp>
+                                  <stringProp name="queryTimeout"></stringProp>
+                                  <stringProp name="resultSetMaxRows"></stringProp>
+                                  <stringProp name="resultSetHandler">Store as String</stringProp>
+                                </JDBCSampler>
+                                <hashTree/>
+                            {% endfor %}
+                            </hashTree>
+                        {% endif %}
+                    {% else %}
+                        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="{{case.description}}" enabled="true">
+                                <boolProp name="TransactionController.includeTimers">false</boolProp>
+                                <boolProp name="TransactionController.parent">false</boolProp>
+                              </TransactionController>
+                            <hashTree>
+                                {% for sql in sql_list %}
+                                {% if sql is not none and sql.strip() != "" %}
+                                <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="use database" enabled="true">
+                                  <stringProp name="dataSource">${db_connection}</stringProp>
+                                  <stringProp name="queryType">Callable Statement</stringProp>
+                                  <stringProp name="query">{{sql.strip()}}</stringProp>
+                                  <stringProp name="queryArguments"></stringProp>
+                                  <stringProp name="queryArgumentsTypes"></stringProp>
+                                  <stringProp name="variableNames"></stringProp>
+                                  <stringProp name="resultVariable"></stringProp>
+                                  <stringProp name="queryTimeout"></stringProp>
+                                  <stringProp name="resultSetMaxRows"></stringProp>
+                                  <stringProp name="resultSetHandler">Store as String</stringProp>
+                                </JDBCSampler>
+                                <hashTree/>
+                                {% endif %}
+                                {% endfor %}
+                            </hashTree>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </hashTree>
+    </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="测试" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="循环控制器" enabled="true">
@@ -254,16 +287,11 @@
               <stringProp name="parameters"></stringProp>
               <boolProp name="resetInterpreter">false</boolProp>
               <stringProp name="script">import com.company.*;
+                    log.info( &quot;=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-&quot;+vars.get(&quot;key&quot;) );
+                    log.info( &quot;=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-&quot;+vars.get(&quot;user&quot;) );
+                    var base = Encode.baseEncrypt(vars.get(&quot;key&quot;),vars.get(&quot;user&quot;));
 
-
-log.info( &quot;=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-&quot;+vars.get(&quot;key&quot;) );
-log.info( &quot;=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-&quot;+vars.get(&quot;user&quot;) );
-var base = Encode.baseEncrypt(vars.get(&quot;key&quot;),vars.get(&quot;user&quot;));
-
-vars.put(&quot;base&quot;,base);
-
-
-</stringProp>
+                    vars.put(&quot;base&quot;,base);</stringProp>
             </BeanShellPreProcessor>
             <hashTree/>
             <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON提取器" enabled="true">
@@ -338,15 +366,12 @@ vars.put(&quot;base&quot;,base);
               <boolProp name="resetInterpreter">false</boolProp>
               <stringProp name="script">import com.company.*;
 
-log.info(&quot;===============&quot;+vars.get(&quot;pwd&quot;));
-//vars.put(&quot;pwd&quot;,&quot;admin&quot;);
-var value = Encode.finalEncrypt(vars.get(&quot;pwd&quot;),vars.get(&quot;datasalt&quot;),vars.get(&quot;datatime&quot;),vars.get(&quot;key&quot;),vars.get(&quot;base&quot;));
-//log.info(&quot;===============&quot;+vars.get(&quot;pwd&quot;));
+                    log.info(&quot;===============&quot;+vars.get(&quot;pwd&quot;));
+                    //vars.put(&quot;pwd&quot;,&quot;admin&quot;);
+                    var value = Encode.finalEncrypt(vars.get(&quot;pwd&quot;),vars.get(&quot;datasalt&quot;),vars.get(&quot;datatime&quot;),vars.get(&quot;key&quot;),vars.get(&quot;base&quot;));
+                    //log.info(&quot;===============&quot;+vars.get(&quot;pwd&quot;));
 
-vars.put(&quot;value&quot;,value);
-
-
-</stringProp>
+                    vars.put(&quot;value&quot;,value);</stringProp>
             </BeanShellPreProcessor>
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="响应断言" enabled="true">
@@ -369,8 +394,7 @@ vars.put(&quot;value&quot;,value);
               <boolProp name="resetInterpreter">false</boolProp>
               <stringProp name="parameters"></stringProp>
               <stringProp name="filename"></stringProp>
-              <stringProp name="script">props.put(&quot;token&quot;,vars.get(&quot;token&quot;));
-</stringProp>
+              <stringProp name="script">props.put(&quot;token&quot;,vars.get(&quot;token&quot;));</stringProp>
             </BeanShellPostProcessor>
             <hashTree/>
           </hashTree>
@@ -396,9 +420,7 @@ vars.put(&quot;value&quot;,value);
           </collectionProp>
         </HeaderManager>
         <hashTree/>
-        <!--   开启HTML的自动转义处理       -->
-        {% autoescape true %}
-        {% for case in case_list %}
+
         {% for key, value in case.items() %}
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="{{key}}" enabled="true">
           <boolProp name="TransactionController.includeTimers">false</boolProp>
@@ -490,7 +512,104 @@ vars.put(&quot;value&quot;,value);
         </hashTree>
       {% endfor %}
       </hashTree>
-      {% endfor %}
+
+
+
+      <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown线程组" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="循环控制器" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </PostThreadGroup>
+      <hashTree>
+        <com.blazemeter.jmeter.controller.ParallelSampler guiclass="com.blazemeter.jmeter.controller.ParallelControllerGui" testclass="com.blazemeter.jmeter.controller.ParallelSampler" testname="bzm - Parallel Controller" enabled="true">
+          <intProp name="MAX_THREAD_NUMBER">6</intProp>
+          <boolProp name="PARENT_SAMPLE">false</boolProp>
+          <boolProp name="LIMIT_MAX_THREAD_NUMBER">false</boolProp>
+        </com.blazemeter.jmeter.controller.ParallelSampler>
+
+      <hashTree>
+      {% for key, value in case.items() %}
+        {% for case in value %}
+              {% if case.postSql is not none and ";" in case.preSql %}
+                {% set sql_list = case.postSql.split(";") %}
+              {% else %}
+                {% set sql_list = none %}
+              {% endif %}
+
+              {% if sql_list is not none %}
+              {% for sql in sql_list %}
+                {% if sql is not none and sql.strip() != "" %}
+                    {% if "<" in sql and ">" in sql %}
+                        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="{{case.description}}" enabled="true">
+                            <boolProp name="TransactionController.includeTimers">false</boolProp>
+                            <boolProp name="TransactionController.parent">false</boolProp>
+                          </TransactionController>
+                        <hashTree>
+                        {% set sub_sql = sql.strip().split(">") %}
+                        {% for sql in sub_sql %}
+                            <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="use database" enabled="true">
+                              <stringProp name="dataSource">${db_connection}</stringProp>
+                              <stringProp name="queryType">Callable Statement</stringProp>
+                              <stringProp name="query">{{sql.replace("<", "use ")}}</stringProp>
+                              <stringProp name="queryArguments"></stringProp>
+                              <stringProp name="queryArgumentsTypes"></stringProp>
+                              <stringProp name="variableNames"></stringProp>
+                              <stringProp name="resultVariable"></stringProp>
+                              <stringProp name="queryTimeout"></stringProp>
+                              <stringProp name="resultSetMaxRows"></stringProp>
+                              <stringProp name="resultSetHandler">Store as String</stringProp>
+                            </JDBCSampler>
+                           <hashTree/>
+                            {% endfor %}
+                            </hashTree>
+                        {% endif %}
+                    {% else %}
+                        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="{{case.description}}" enabled="true">
+                                <boolProp name="TransactionController.includeTimers">false</boolProp>
+                                <boolProp name="TransactionController.parent">false</boolProp>
+                              </TransactionController>
+                            <hashTree>
+                                {% for sql in sql_list %}
+                                {% if sql is not none and sql.strip() != "" %}
+                                <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="use database" enabled="true">
+                                  <stringProp name="dataSource">${db_connection}</stringProp>
+                                  <stringProp name="queryType">Callable Statement</stringProp>
+                                  <stringProp name="query">{{sql.strip()}}</stringProp>
+                                  <stringProp name="queryArguments"></stringProp>
+                                  <stringProp name="queryArgumentsTypes"></stringProp>
+                                  <stringProp name="variableNames"></stringProp>
+                                  <stringProp name="resultVariable"></stringProp>
+                                  <stringProp name="queryTimeout"></stringProp>
+                                  <stringProp name="resultSetMaxRows"></stringProp>
+                                  <stringProp name="resultSetHandler">Store as String</stringProp>
+                                </JDBCSampler>
+                                <hashTree/>
+                                {% endif %}
+                                {% endfor %}
+                            </hashTree>
+
+                    {% endif %}
+                {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </hashTree>
+        </hashTree>
+
+
+
+
+
+
+  {% endfor %}
       {% endautoescape %}
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="察看结果树" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>

@@ -12,11 +12,13 @@ import pytest
 stability_interface_threshold = 95
 
 interfaces = [
-    {'name': '数据', 'filename': 'analytics'},
+    # {'name': '数据', 'filename': 'analytics'},
     # {'name': '中控', 'filename': 'orch'},
-    {'name': 'COE', 'filename': 'marketPlace'},
-    {'name': 'COE', 'filename': 'personalWorkSpace'},
-    {'name': '工单', 'filename': 'orderWork'},
+    # {'name': 'COE', 'filename': 'marketPlace'},
+    # {'name': 'COE', 'filename': 'personalWorkSpace'},
+    # {'name': '工单', 'filename': 'orderWork'},
+    {'name': 'COE', 'filename': 'coe'},
+    # {'name': '中控', 'filename': 'orch_xn'},
 ]
 
 
